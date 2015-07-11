@@ -28,3 +28,8 @@ author:
 version:             2.0.0
 github:
   repo:              https://github.com/poole/poole
+
+
+# 添加图片存放位置的常量（2015-07-12 00:02:17）
+img_url	:			http://changer119.github.io/_images
+
