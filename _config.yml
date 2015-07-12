@@ -8,14 +8,12 @@ highlighter: pygments
 # Themes are encouraged to use these universal variables 
 # so be sure to set them if your theme uses them.
 #
-title : Jekyll Bootstrap
-tagline: Site Tagline
+title : 烂笔头
+tagline: 记录点滴，回味生活，day day up...
 author :
   name : fcjiang
   email : fachangjiang@qq.com
   github : changer119
-  twitter : username
-  feedburner : feedname
 
 # 添加图片路径
 imgurl: http://changer119.github.io/assets/images
