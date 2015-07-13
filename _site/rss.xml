@@ -1,0 +1,331 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+<channel>
+        <title>烂笔头</title>
+        <description>烂笔头 - fcjiang</description>
+        <link>http://changer119.github.io</link>
+        <atom:link href="http://changer119.github.io/rss.xml" rel="self" type="application/rss+xml" />
+        <lastBuildDate>Mon, 13 Jul 2015 23:55:42 +0800</lastBuildDate>
+        <pubDate>Mon, 13 Jul 2015 23:55:42 +0800</pubDate>
+        <ttl>60</ttl>
+
+
+        <item>
+                <title>maven入门</title>
+                <description>&lt;h2 id=&quot;maven&quot;&gt;maven主要命令&lt;/h2&gt;
+
+&lt;h3 id=&quot;test&quot;&gt;安装但不运行test代码&lt;/h3&gt;
+&lt;p&gt;&lt;code&gt;
+$ mvn clean install -Dmaven.test.skip=true
+&lt;/code&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;profile&quot;&gt;指定profile安装&lt;/h3&gt;
+&lt;p&gt;&lt;code&gt;
+$ mvn clean install -Pint	# 给测试发的版本
+&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;
+$ mvn clean install -Pdev	# 给开发发的版本
+&lt;/code&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;profiletest&quot;&gt;指定profile，不运行test（合并）&lt;/h3&gt;
+&lt;p&gt;&lt;code&gt;
+$ mvn clean install -Pint -Dmaven.test.skip=true
+&lt;/code&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;maven-1&quot;&gt;maven聚合&lt;/h2&gt;
+&lt;p&gt;假设有projectA，它里面聚合了projectB、projectC两个模块，projectA的pom.xml中的&lt;code&gt;&amp;lt;packaging&amp;gt;&lt;/code&gt;属性值必须为pom。&lt;/p&gt;
+
+&lt;p&gt;```&lt;/p&gt;
+&lt;packaging&gt;pom&lt;/packaging&gt;
+
+&lt;p&gt;```&lt;/p&gt;
+
+&lt;h1 id=&quot;maven-2&quot;&gt;Maven参数配置&lt;/h1&gt;
+
+&lt;h2 id=&quot;packaging-&quot;&gt;packaging 打包类型&lt;/h2&gt;
+
+&lt;p&gt;任何一个maven工程，对应有一个pom.xml文件。这个pom.xml文件通过&lt;code&gt;&amp;lt;packaging&amp;gt;xxx&amp;lt;/packaging&amp;gt;&lt;/code&gt;来决定该工程打包的类型（打成jar包？war包？）。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;不填时（默认），表示打成jar包。&lt;/li&gt;
+  &lt;li&gt;war，表示打成war包。&lt;/li&gt;
+  &lt;li&gt;pom，表示这个工程不打包，它是其它工程的父工程。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h1 id=&quot;nexus&quot;&gt;Nexus相关&lt;/h1&gt;
+
+&lt;p&gt;Nexus安装之后，会自动配置下面这几个仓库。如图：&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;图片&lt;/strong&gt;&lt;/p&gt;
+
+&lt;table&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;
+      &lt;td&gt;这里面的仓库主要有三种类型： &lt;code&gt;hosted&lt;/code&gt;&lt;/td&gt;
+      &lt;td&gt;&lt;code&gt;proxy&lt;/code&gt;&lt;/td&gt;
+      &lt;td&gt;&lt;code&gt;group&lt;/code&gt;&lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;p&gt;&lt;strong&gt;hosted&lt;/strong&gt;: 主要与公司内部打交道。例如用户发布包（&lt;code&gt;mvn deploy&lt;/code&gt;）就会将包上传到&lt;code&gt;hosted&lt;/code&gt;类别的仓库中。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Releases仓库：当工程pom的version为x.x.x-Release时，用户发布后会将包上传到该仓库。&lt;/li&gt;
+  &lt;li&gt;Snapshots仓库：与上逻辑同。&lt;/li&gt;
+  &lt;li&gt;3rd part仓库：如果有些依赖包在maven的中央仓库找不到，就需要到该依赖包的官网下载，让后将依赖包上传到该仓库中。用户下次添加依赖时，会直接到该仓库获取。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;strong&gt;proxy&lt;/strong&gt;: 主要与外网打交道。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Centeral仓库：从maven中央仓库下载的包都放在该仓库。&lt;/li&gt;
+  &lt;li&gt;Apache Snapshots仓库：放从apache下载的包。&lt;/li&gt;
+  &lt;li&gt;Codehause Snapshots仓库：放从codehause下载的包。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;strong&gt;设置mirror后，工程只会访问镜像，如果程序访问不了镜像，也不会去访问中央工厂回到家后，无法访问mirror时，就需要注释mirror，程序才会去中央工厂下载&lt;/strong&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;mvn-deploy&quot;&gt;发布（mvn deploy）&lt;/h2&gt;
+
+&lt;p&gt;要将包发布到私服上，需要先在pom中设置&lt;code&gt;&amp;lt;distributionManagement&amp;gt;&lt;/code&gt;和&lt;code&gt;&amp;lt;server&amp;gt;&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;图片1&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;pic2&lt;/strong&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;maven-3&quot;&gt;Maven的生命周期&lt;/h2&gt;
+&lt;p&gt;&lt;strong&gt;有3套生命周期：clean的生命周期、compile的生命周期、site的生命周期&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;下图列出了执行mvn clean和mvn install需要完成的步骤。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;../_images/QQ20150711-2@2x.png&quot; alt=&quot;图片说明&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;../_images/QQ20150711-3@2x.png&quot; alt=&quot;图片说明&quot; /&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;section&quot;&gt;插件的配置&lt;/h2&gt;
+
+&lt;p&gt;表示在执行完validate之后，就会执行jar和test-jar操作。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;../_images/QQ20150711-4@2x.png&quot; alt=&quot;图片说明&quot; /&gt;&lt;/p&gt;
+
+&lt;table&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;
+      &lt;td&gt;**在父级pom中，有&lt;code&gt;&amp;lt;pluginsManagement&amp;gt;&lt;/code&gt;&lt;/td&gt;
+      &lt;td&gt;&lt;code&gt;&amp;lt;dependencyManagement&amp;gt;&lt;/code&gt;标签，在它里面定义的内容不能够被子模块直接继承，需要在子模块中手动添加groupid和archtypeId才行**&lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+
+</description>
+                <link>http://changer119.github.io/2015/07/08/Maven%E5%85%A5%E9%97%A8</link>
+                <guid>http://changer119.github.io/2015/07/08/Maven入门</guid>
+                <pubDate>Wed, 08 Jul 2015 00:00:00 +0800</pubDate>
+        </item>
+
+        <item>
+                <title>测试图片显示</title>
+                <description>
+&lt;p&gt;这是一张图片&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://changer119.github.io/assets/images/1.jpg&quot; alt=&quot;图片说明&quot; /&gt;&lt;/p&gt;
+</description>
+                <link>http://changer119.github.io/2015/07/07/%E6%B5%8B%E8%AF%95%E4%BD%BF%E7%94%A8%E5%9B%BE%E7%89%87</link>
+                <guid>http://changer119.github.io/2015/07/07/测试使用图片</guid>
+                <pubDate>Tue, 07 Jul 2015 00:00:00 +0800</pubDate>
+        </item>
+
+        <item>
+                <title>java枚举类型初体验</title>
+                <description>&lt;p&gt;Enum是JDK5引入的。有了Enum类型后，对于常量的处理更加方便。&lt;/p&gt;
+
+&lt;p&gt;以前定义常量一般是这样的：&lt;/p&gt;
+
+&lt;p&gt;```
+Constant.java&lt;/p&gt;
+
+&lt;p&gt;public interface Constant{
+	public final PI = 3.14;
+	public fianl G = 9.8;
+}
+```&lt;/p&gt;
+
+&lt;p&gt;以前这些常量可能分散在不同的文件中，缺乏统一的管理，使用不方便。&lt;/p&gt;
+
+&lt;p&gt;利用Enum类型，可以将常量定义成如下形式：&lt;/p&gt;
+
+&lt;p&gt;```
+ColorEnum.java&lt;/p&gt;
+
+&lt;p&gt;public enum ColorEnum{
+	RED, GREEN, YELLOW;
+}
+```&lt;/p&gt;
+
+&lt;p&gt;如果觉得上面的枚举太过简单，可以给ColorEnum添加方法。&lt;/p&gt;
+
+&lt;p&gt;```
+public enum Color {
+    // 必须先定义枚举类Color的实例
+    Red(1, “红色”),
+    Green(2, “绿色”),
+    Yellow(3, “黄色”),
+    Pink(4, “粉红色”);&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;private final int id;
+private final String description;
+
+
+// 根据id值得到对应的description
+public static String getDescription(int id){
+    for(Color item : Color.values()){
+        if(item.getId() == id){
+            return item.getDescription();
+        }
+    }
+    return null;
+}
+// 根据id值得到对应的枚举实例
+public static Color getColor(int id){
+    for(Color item : Color.values()){
+        if(item.getId() == id){
+            return item;
+        }
+    }
+    return null;
+}
+// 根据id值得到对应的枚举实例
+public static Color valueOf(int id){
+    switch (id){
+        case 1:
+            return Color.Red;
+        case 2:
+            return Color.Green;
+        case 3:
+            return Color.Yellow;
+        case 4:
+            return Color.Pink;
+        default:
+            return  null;
+    }
+}
+
+//覆盖方法
+@Override
+public String toString() {
+    return this.id+&quot;_&quot; + this.description;
+}
+
+Color(int id, String description) {
+    this.id = id;
+    this.description = description;
+}
+
+public int getId() {
+    return id;
+}
+
+public String getDescription() {
+    return description;
+}
+
+// 枚举类里面可以添加main方法
+public static void main(String[] args){
+    int id = 2;
+    Color c = Color.getColor(2);
+    System.out.println(c);
+} } ```
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;strong&gt;重点&lt;/strong&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;定义枚举类时，枚举实例必须放在最前面，并且已&lt;code&gt;;&lt;/code&gt;分号隔开。&lt;/li&gt;
+  &lt;li&gt;枚举实例&lt;code&gt;Red(1, &quot;红色&quot;)&lt;/code&gt;，是根据枚举类的定义得来的。（枚举类有id, description两个成员变量）&lt;/li&gt;
+  &lt;li&gt;这种枚举类主要用在数据库的状态字段中。&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+                <link>http://changer119.github.io/2015/07/07/Java%E6%9E%9A%E4%B8%BE%E7%B1%BB%E5%9E%8B%E4%BD%BF%E7%94%A8</link>
+                <guid>http://changer119.github.io/2015/07/07/Java枚举类型使用</guid>
+                <pubDate>Tue, 07 Jul 2015 00:00:00 +0800</pubDate>
+        </item>
+
+        <item>
+                <title>Intellij入门</title>
+                <description>&lt;h2 id=&quot;svnmaven&quot;&gt;导出svn上的maven工程&lt;/h2&gt;
+&lt;ol&gt;
+  &lt;li&gt;ld&lt;/li&gt;
+  &lt;li&gt;代码checkout到本地后，查看代码发现都有红色的问号（表示有错误）。这是因为Intellij没有自动刷新导致的。只要点击Intellij右侧MavenProjects，再点击刷新图标即可。
+&lt;img src=&quot;../_images/QQ20150707-1@2x.png&quot; alt=&quot;图片说明&quot; /&gt;&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h1 id=&quot;intellij&quot;&gt;Intellij常用快捷键&lt;/h1&gt;
+
+&lt;table&gt;
+  &lt;thead&gt;
+    &lt;tr&gt;
+      &lt;th&gt;组合键&lt;/th&gt;
+      &lt;th&gt;实现的功能&lt;/th&gt;
+    &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;
+      &lt;td&gt;&lt;code&gt;cmd + R&lt;/code&gt;&lt;/td&gt;
+      &lt;td&gt;替换&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;&lt;code&gt;cmd + F&lt;/code&gt;&lt;/td&gt;
+      &lt;td&gt;查找&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;&lt;code&gt;alt + F7&lt;/code&gt;&lt;/td&gt;
+      &lt;td&gt;查找方法或者类被引用的地方&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;&lt;code&gt;cmd + shift + F&lt;/code&gt;&lt;/td&gt;
+      &lt;td&gt;全工程搜索某字符串内容&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;&lt;code&gt;cmd + N&lt;/code&gt;&lt;/td&gt;
+      &lt;td&gt;生成构造方法或者getter/setter&lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+
+</description>
+                <link>http://changer119.github.io/2015/07/07/Intellij%E4%BD%BF%E7%94%A8</link>
+                <guid>http://changer119.github.io/2015/07/07/Intellij使用</guid>
+                <pubDate>Tue, 07 Jul 2015 00:00:00 +0800</pubDate>
+        </item>
+
+        <item>
+                <title>公司巨变</title>
+                <description>&lt;p&gt;2015年6月末到7月初，公司发生了一场巨变，很多的人员主动离职。&lt;/p&gt;
+
+&lt;p&gt;事情的起因是6月最后一个周五，突然收到李总（总裁）的邮件，说因为产品战略与公司产生分歧，提出离职。事情一出，大家就在议论，到底是什么分歧。李总说的与公司战略不一致，其实就是说的他跟CEO的意见不一致。过了大约一个小时，人力资源的负责人立马发邮件通知大家，说公司的某一项产品（由李总负责）将下线。邮件同时否认了一些谣言，并且提到了李总和另外一位核心员工的离职。&lt;/p&gt;
+
+&lt;p&gt;本以为事情到此为止，谁知道接下来的周一，公司很多人集体离职。我猜想他们肯定都是被李总拉出去单干了。这里面有很多老员工，也有一些新进来才2-3各月的员工。他们都是按照一个团队去的，既有PM、后台、前端，还有不同业务线的人员。这些人在公司的工作交接也很神速，估计每个人只用了1-2个小时就完成交接了。等我周四从家里回到单位时，要离职的人都离开了。&lt;/p&gt;
+
+&lt;p&gt;因为这些骨干人员的离职，CEO发邮件鼓励大家，并提及了ESOP计划，并且现在正准备开启。希望这可以团结大家吧。&lt;/p&gt;
+</description>
+                <link>http://changer119.github.io/2015/07/02/%E5%85%AC%E5%8F%B8%E7%9A%84%E5%B7%A8%E5%8F%98</link>
+                <guid>http://changer119.github.io/2015/07/02/公司的巨变</guid>
+                <pubDate>Thu, 02 Jul 2015 00:00:00 +0800</pubDate>
+        </item>
+
+        <item>
+                <title>你好，世界</title>
+                <description>&lt;p&gt;作为一位纯屌丝码农，写过的Hello Word已不计其数。&lt;/p&gt;
+
+&lt;p&gt;没想到搭建Blog，还是Hello World的天下。&lt;/p&gt;
+</description>
+                <link>http://changer119.github.io/2015/06/24/%E4%BD%A0%E5%A5%BD%E4%B8%96%E7%95%8C</link>
+                <guid>http://changer119.github.io/2015/06/24/你好世界</guid>
+                <pubDate>Wed, 24 Jun 2015 00:00:00 +0800</pubDate>
+        </item>
+
+
+</channel>
+</rss>

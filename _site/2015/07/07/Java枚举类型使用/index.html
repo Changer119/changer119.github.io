@@ -1,0 +1,256 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="chrome=1" />
+    <meta name="author" content="fcjiang" />
+    <title>java枚举类型初体验</title>
+
+    <link rel="stylesheet" href="/assets/themes/dinky/css/styles.css">
+    <link rel="stylesheet" href="/assets/themes/dinky/css/pygment_trac.css">
+    <script src="/assets/themes/dinky/js/scale.fix.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    
+
+
+
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1 class="header"><a href="/">烂笔头</a></h1>
+        <p class="header">记录点滴，回味生活，day day up...</p>
+        <ul>
+          
+          
+          
+
+
+  
+    
+      
+      	
+      	<li><a href="/archive.html">Archive</a></li>
+      	
+      
+    
+  
+    
+      
+    
+  
+    
+      
+      	
+      	<li><a href="/categories.html">Categories</a></li>
+      	
+      
+    
+  
+    
+      
+    
+  
+    
+      
+      	
+      	<li><a href="/pages.html">Pages</a></li>
+      	
+      
+    
+  
+    
+      
+    
+  
+    
+      
+    
+  
+    
+      
+      	
+      	<li><a href="/tags.html">Tags</a></li>
+      	
+      
+    
+  
+
+
+
+        </ul>
+        
+        
+        <div class="misc vcard">
+          <h4>about</h4>
+          <ul>
+            
+            <li class="contact"><address><span class="author fn n">fcjiang</span> - <span class="fn email">fachangjiang@qq.com</span></address></li>
+            
+            
+            <li class="github"><a href="http://github.com/changer119/" rel="me">github.com/changer119</a></li>
+            
+            
+            
+            
+            
+            
+          </ul>
+        </div><!-- misc -->
+        
+      </header>
+
+      <section>
+      
+<section>
+  <h1>java枚举类型初体验</h1>
+
+  <p>Enum是JDK5引入的。有了Enum类型后，对于常量的处理更加方便。</p>
+
+<p>以前定义常量一般是这样的：</p>
+
+<p>```
+Constant.java</p>
+
+<p>public interface Constant{
+	public final PI = 3.14;
+	public fianl G = 9.8;
+}
+```</p>
+
+<p>以前这些常量可能分散在不同的文件中，缺乏统一的管理，使用不方便。</p>
+
+<p>利用Enum类型，可以将常量定义成如下形式：</p>
+
+<p>```
+ColorEnum.java</p>
+
+<p>public enum ColorEnum{
+	RED, GREEN, YELLOW;
+}
+```</p>
+
+<p>如果觉得上面的枚举太过简单，可以给ColorEnum添加方法。</p>
+
+<p>```
+public enum Color {
+    // 必须先定义枚举类Color的实例
+    Red(1, “红色”),
+    Green(2, “绿色”),
+    Yellow(3, “黄色”),
+    Pink(4, “粉红色”);</p>
+
+<pre><code>private final int id;
+private final String description;
+
+
+// 根据id值得到对应的description
+public static String getDescription(int id){
+    for(Color item : Color.values()){
+        if(item.getId() == id){
+            return item.getDescription();
+        }
+    }
+    return null;
+}
+// 根据id值得到对应的枚举实例
+public static Color getColor(int id){
+    for(Color item : Color.values()){
+        if(item.getId() == id){
+            return item;
+        }
+    }
+    return null;
+}
+// 根据id值得到对应的枚举实例
+public static Color valueOf(int id){
+    switch (id){
+        case 1:
+            return Color.Red;
+        case 2:
+            return Color.Green;
+        case 3:
+            return Color.Yellow;
+        case 4:
+            return Color.Pink;
+        default:
+            return  null;
+    }
+}
+
+//覆盖方法
+@Override
+public String toString() {
+    return this.id+"_" + this.description;
+}
+
+Color(int id, String description) {
+    this.id = id;
+    this.description = description;
+}
+
+public int getId() {
+    return id;
+}
+
+public String getDescription() {
+    return description;
+}
+
+// 枚举类里面可以添加main方法
+public static void main(String[] args){
+    int id = 2;
+    Color c = Color.getColor(2);
+    System.out.println(c);
+} } ```
+</code></pre>
+
+<p><strong>重点</strong></p>
+
+<ul>
+  <li>定义枚举类时，枚举实例必须放在最前面，并且已<code>;</code>分号隔开。</li>
+  <li>枚举实例<code>Red(1, "红色")</code>，是根据枚举类的定义得来的。（枚举类有id, description两个成员变量）</li>
+  <li>这种枚举类主要用在数据库的状态字段中。</li>
+</ul>
+
+
+  
+
+
+  <div id="disqus_thread"></div>
+<script type="text/javascript">
+    
+    var disqus_developer = 1;
+    var disqus_shortname = 'jekyllbootstrap'; // required: replace example with your forum shortname
+    
+    /* * * DON'T EDIT BELOW THIS LINE * * */
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+
+
+
+
+</section>
+
+
+      </section>
+
+      <footer>
+      <p><small>Hosted on <a href="http://pages.github.com/">GitHub Pages</a> using the <a href="https://github.com/sodabrew/theme-dinky">Dinky theme</a> for <a href="http://jekyllbootstrap.com/">Jekyll Bootstrap</a></small></p>
+      </footer>
+    </div>
+    <!--[if !IE]><script>fixScale(document);</script><!--<![endif]-->
+  </body>
+</html>
+
