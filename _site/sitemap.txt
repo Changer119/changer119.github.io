@@ -8,6 +8,7 @@ http://changer119.github.io/rss.xml
 http://changer119.github.io/sitemap.txt
 http://changer119.github.io/tags.html
 
+http://changer119.github.io/2015/07/14/%E5%A4%9A%E5%B9%B6%E5%8F%91%E4%B8%8B%E7%9A%84DB%E6%9B%B4%E6%96%B0
 http://changer119.github.io/2015/07/08/jekyll-bootstrap-%E4%B8%BB%E9%A2%98%E5%AE%89%E8%A3%85
 http://changer119.github.io/2015/07/08/Maven%E5%85%A5%E9%97%A8
 http://changer119.github.io/2015/07/07/%E6%B5%8B%E8%AF%95%E4%BD%BF%E7%94%A8%E5%9B%BE%E7%89%87

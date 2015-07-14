@@ -19,7 +19,10 @@ title: jekyll bootstrap主题安装
 
 	*.swp
 	_site/*
-	_theme_packages
+	_theme_packages/*
+
+以上内容表示，_site和 _theme_package两个目录都不加到git，也不上传到github。
+
 
 2，在主目录下删除已有的_theme_packages内容。
 
