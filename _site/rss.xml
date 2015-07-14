@@ -5,10 +5,69 @@
         <description>烂笔头 - fcjiang</description>
         <link>http://changer119.github.io</link>
         <atom:link href="http://changer119.github.io/rss.xml" rel="self" type="application/rss+xml" />
-        <lastBuildDate>Tue, 14 Jul 2015 10:09:54 +0800</lastBuildDate>
-        <pubDate>Tue, 14 Jul 2015 10:09:54 +0800</pubDate>
+        <lastBuildDate>Tue, 14 Jul 2015 10:54:28 +0800</lastBuildDate>
+        <pubDate>Tue, 14 Jul 2015 10:54:28 +0800</pubDate>
         <ttl>60</ttl>
 
+
+        <item>
+                <title>jekyll bootstrap主题安装</title>
+                <description>&lt;p&gt;在安装bootsrap dinky主题后，本地运行jekyll是没问题的，但一上传到github.com后，就会报下面的错误。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;The page build failed with the following error:&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;The submodule &lt;code&gt;_theme_packages/dinky&lt;/code&gt; was not properly initialized with a &lt;code&gt;.gitmodules&lt;/code&gt; file. For more information, see https://help.github.com/articles/page-build-failed-missing-submodule.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;If you have any questions you can contact us by replying to this email.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;笔者也很有耐心的去看了上文中的链接，结果怎么试都不行，后来在网上也找了很多其他的教程，依然解决不了。直到看到下面这两篇文章（&lt;a href=&quot;http://theloverz.me/note/2013/12/06/fix-failure-on-github-pages-and-jekyll/&quot;&gt;文章1&lt;/a&gt;，&lt;a href=&quot;http://dsimidzija.github.io/programming/2014/02/15/jekyll-bootstrap-themes-and-github-pages/&quot;&gt;文章2&lt;/a&gt;），才解决了问题。&lt;/p&gt;
+
+&lt;p&gt;下面我介绍下我的步骤。&lt;/p&gt;
+
+&lt;p&gt;1，进入博客的主目录(我的是changer119.github.io)，在.gitignore文件中添加如下内容。如果主目录下没有.gitignore文件，自己新增一个即可。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;*.swp
+_site/*
+_theme_packages
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;2，在主目录下删除已有的_theme_packages内容。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;git rm -r --cached _theme_packages
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;3, 重新安装jekyll bootstrap的主题。&lt;a href=&quot;http://jekyllbootstrap.com/usage/jekyll-theming.html#toc_3&quot;&gt;官方链接&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;我使用的dinky主题，我在主目录下输入如下命令，碰到需要选择的时候，一直yes下去&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;rake theme:install git=&quot;git://github.com/sodabrew/theme-dinky.git&quot;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;4，本地run一下jekyll，看看效果。在主目录下执行。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;jekyll server
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;5，查看效果，访问&lt;a href=&quot;http://localhost:4000&quot;&gt;http://localhost:4000&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;6，如果效果正常，就可以提交修改到github啦。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;git add *
+git commit -m &#39;your log&#39;
+git push origin master
+&lt;/code&gt;&lt;/pre&gt;
+
+</description>
+                <link>http://changer119.github.io/2015/07/08/jekyll-bootstrap-%E4%B8%BB%E9%A2%98%E5%AE%89%E8%A3%85</link>
+                <guid>http://changer119.github.io/2015/07/08/jekyll-bootstrap-主题安装</guid>
+                <pubDate>Wed, 08 Jul 2015 00:00:00 +0800</pubDate>
+        </item>
 
         <item>
                 <title>maven入门</title>
