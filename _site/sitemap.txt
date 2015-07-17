@@ -8,6 +8,7 @@ http://changer119.github.io/rss.xml
 http://changer119.github.io/sitemap.txt
 http://changer119.github.io/tags.html
 
+http://changer119.github.io/2015/07/15/Spring%20@Transactional%E4%BA%8B%E5%8A%A1%E7%AE%A1%E7%90%86
 http://changer119.github.io/2015/07/14/%E5%A4%9A%E5%B9%B6%E5%8F%91%E4%B8%8B%E7%9A%84DB%E6%9B%B4%E6%96%B0
 http://changer119.github.io/2015/07/08/jekyll-bootstrap-%E4%B8%BB%E9%A2%98%E5%AE%89%E8%A3%85
 http://changer119.github.io/2015/07/08/Maven%E5%85%A5%E9%97%A8
@@ -15,4 +16,8 @@ http://changer119.github.io/2015/07/07/%E6%B5%8B%E8%AF%95%E4%BD%BF%E7%94%A8%E5%9
 http://changer119.github.io/2015/07/07/Java%E6%9E%9A%E4%B8%BE%E7%B1%BB%E5%9E%8B%E4%BD%BF%E7%94%A8
 http://changer119.github.io/2015/07/07/Intellij%E4%BD%BF%E7%94%A8
 http://changer119.github.io/2015/07/02/%E5%85%AC%E5%8F%B8%E7%9A%84%E5%B7%A8%E5%8F%98
-http://changer119.github.io/2015/06/24/%E4%BD%A0%E5%A5%BD%E4%B8%96%E7%95%8C
+http://changer119.github.io/2015/06/24/Git%E5%AD%A6%E4%B9%A0
+http://changer119.github.io/2015/06/16/Linux%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4
+http://changer119.github.io/2015/06/12/%E6%B5%8B%E8%AF%95%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%8F%91%E7%89%88%E5%A4%87%E5%BF%98
+http://changer119.github.io/2015/06/12/Linux%E4%B8%8B%E5%AE%89%E8%A3%85%E5%A4%9A%E4%B8%AAtomcat%E5%AE%9E%E4%BE%8B
+http://changer119.github.io/2015/06/11/Redis%E5%85%A5%E9%97%A8
