@@ -4,7 +4,7 @@
  <title>烂笔头</title>
  <link href="http://changer119.github.io/atom.xml" rel="self"/>
  <link href="http://changer119.github.io"/>
- <updated>2015-07-17T16:33:37+08:00</updated>
+ <updated>2015-07-18T00:23:08+08:00</updated>
  <id>http://changer119.github.io</id>
  <author>
    <name>fcjiang</name>
@@ -767,6 +767,370 @@ $ quit
 &lt;h2 id=&quot;redis-3&quot;&gt;命令行使用redis&lt;/h2&gt;
 
 &lt;h2 id=&quot;javaredis&quot;&gt;java程序使用redis&lt;/h2&gt;
+</content>
+ </entry>
+ 
+ <entry>
+   <title>ajax跨域访问</title>
+   <link href="http://changer119.github.io/?p=109"/>
+   <updated>2015-03-24T00:00:00+08:00</updated>
+   <id>http://changer119.github.io/ajax%e8%b7%a8%e5%9f%9f%e8%ae%bf%e9%97%ae</id>
+   <content type="html">&lt;p&gt;ajax跨域访理解起来有点绕，网上能够搜到很多相关的帖子，但基本上都是抄至同一个人。 鉴于这个原因，我自己整理一下ajax跨域访问的实例，希望帮助到更多人。&lt;/p&gt;
+
+&lt;p&gt;我在本地有一个Java Web的应用，它需要访问远程主机（新浪SAE）的某个应用中的action。利用普通的ajax交互。&lt;/p&gt;
+
+&lt;p&gt;本地应用中ajax请求的代码：&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;http://changer119.cn/fcjiang/wp-content/uploads/2015/03/1.png&quot;&gt;&lt;img src=&quot;http://changer119.cn/fcjiang/wp-content/uploads/2015/03/1.png&quot; alt=&quot;1&quot; width=&quot;878&quot; height=&quot;196&quot; class=&quot;alignnone size-full wp-image-110&quot; /&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;运行后得到错误提示：&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;http://changer119.cn/fcjiang/wp-content/uploads/2015/03/2.png&quot;&gt;&lt;img src=&quot;http://changer119.cn/fcjiang/wp-content/uploads/2015/03/2.png&quot; alt=&quot;2&quot; width=&quot;875&quot; height=&quot;130&quot; class=&quot;alignnone size-full wp-image-111&quot; /&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;由上可知，通过普通的ajax来获取远程主机的数据（跨域访问）是不行的。&lt;/p&gt;
+
+&lt;p&gt;怎么样才能实现ajax的跨域访问呢？利用JSONP来进行ajax交互。具体JSONP是什么东西，大家可以google一下，略去。&lt;/p&gt;
+
+&lt;p&gt;下面介绍如何利用JSONP进行跨域访问。 本地应用中ajax请求代码：&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;http://changer119.cn/fcjiang/wp-content/uploads/2015/03/3.png&quot;&gt;&lt;img src=&quot;http://changer119.cn/fcjiang/wp-content/uploads/2015/03/3.png&quot; alt=&quot;3&quot; width=&quot;810&quot; height=&quot;240&quot; class=&quot;alignnone size-full wp-image-112&quot; /&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;http://changer119.cn/fcjiang/wp-content/uploads/2015/03/4.png&quot;&gt;&lt;img src=&quot;http://changer119.cn/fcjiang/wp-content/uploads/2015/03/4.png&quot; alt=&quot;4&quot; width=&quot;1272&quot; height=&quot;267&quot; class=&quot;alignnone size-full wp-image-113&quot; /&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;当然，要实现ajax跨域仅仅在客户端改用JSONP还是不行的，必须要远程主机上的action配合才行。&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;远程主机action的代码：&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;http://changer119.cn/fcjiang/wp-content/uploads/2015/03/5.png&quot;&gt;&lt;img src=&quot;http://changer119.cn/fcjiang/wp-content/uploads/2015/03/5.png&quot; alt=&quot;5&quot; width=&quot;884&quot; height=&quot;383&quot; class=&quot;alignnone size-full wp-image-114&quot; /&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;客户端在拿到ajax返回的数据如下：&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;http://changer119.cn/fcjiang/wp-content/uploads/2015/03/6.png&quot;&gt;&lt;img src=&quot;http://changer119.cn/fcjiang/wp-content/uploads/2015/03/6.png&quot; alt=&quot;6&quot; width=&quot;803&quot; height=&quot;121&quot; class=&quot;alignnone size-full wp-image-115&quot; /&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;客户端jsonp的回调函数如下：&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;http://changer119.cn/fcjiang/wp-content/uploads/2015/03/7.png&quot;&gt;&lt;img src=&quot;http://changer119.cn/fcjiang/wp-content/uploads/2015/03/7.png&quot; alt=&quot;7&quot; width=&quot;606&quot; height=&quot;63&quot; class=&quot;alignnone size-full wp-image-116&quot; /&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;【注】&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;经我实测，在客户端中不定义jsonpCallbackFunc方法，跨域也能够成功。&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;跨域获得的数据能够自动传入ajax的success:function(data){}回调函数，data就是跨域所得数据。&lt;/strong&gt;&lt;/p&gt;
+
+</content>
+ </entry>
+ 
+ <entry>
+   <title>跨域常用的方式以及原理</title>
+   <link href="http://changer119.github.io/?p=124"/>
+   <updated>2015-03-24T00:00:00+08:00</updated>
+   <id>http://changer119.github.io/%e8%b7%a8%e5%9f%9f%e5%b8%b8%e7%94%a8%e7%9a%84%e6%96%b9%e5%bc%8f%e4%bb%a5%e5%8f%8a%e5%8e%9f%e7%90%86</id>
+   <content type="html">&lt;p&gt;这篇文章紧接上一篇“&lt;a href=&quot;http://changer119.cn/fcjiang/?p=109&quot;&gt;ajax跨域访问&lt;/a&gt;”。这里主要罗列下跨域常用的方式以及跨域的原理。&lt;/p&gt;
+
+&lt;h2 id=&quot;script&quot;&gt;使用script的方式&lt;/h2&gt;
+
+&lt;h3 id=&quot;section&quot;&gt;实现一&lt;/h3&gt;
+
+&lt;pre&gt;&lt;code&gt;&amp;lt;meta content=&quot;text/html; charset=utf-8&quot; http-equiv=&quot;Content-Type&quot; /&amp;gt;
+&amp;lt;script type=&quot;text/javascript&quot;&amp;gt;  
+function jsonpCallback(result) {  
+//alert(result);  
+for(var i in result) {  
+alert(i+&quot;:&quot;+result[i]);//循环输出a:1,b:2,etc.  
+}  
+}  
+var JSONP=document.createElement(&quot;script&quot;);  
+JSONP.type=&quot;text/javascript&quot;;  
+JSONP.src=&quot;http://crossdomain.com/services.php?callback=jsonpCallback&quot;;  
+document.getElementsByTagName(&quot;head&quot;)[0].appendChild(JSONP);  
+&amp;lt;/script&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&quot;section-1&quot;&gt;实现二&lt;/h3&gt;
+
+&lt;pre&gt;&lt;code&gt;&amp;lt;meta content=&quot;text/html; charset=utf-8&quot; http-equiv=&quot;Content-Type&quot; /&amp;gt;  
+&amp;lt;script type=&quot;text/javascript&quot;&amp;gt;  
+    function jsonpCallback(result) {  
+        alert(result.a);  
+        alert(result.b);  
+        alert(result.c);  
+        for(var i in result) {  
+            alert(i+&quot;:&quot;+result[i]);//循环输出a:1,b:2,etc.  
+        }  
+    }  
+&amp;lt;/script&amp;gt;  
+&amp;lt;script type=&quot;text/javascript&quot; src=&quot;http://crossdomain.com/services.php?callback=jsonpCallback&quot;&amp;gt;&amp;lt;/script&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&quot;jquery&quot;&gt;使用jQuery的方式&lt;/h2&gt;
+
+&lt;h3 id=&quot;getjson&quot;&gt;实现一：$.getJSON&lt;/h3&gt;
+
+&lt;pre&gt;&lt;code&gt;&amp;lt;script type=&quot;text/javascript&quot; src=&quot;jquery.js&quot;&amp;gt;&amp;lt;/script&amp;gt;  
+&amp;lt;script type=&quot;text/javascript&quot;&amp;gt;  
+    $.getJSON(&quot;http://crossdomain.com/services.php?callback=?&quot;,  
+    function(result) {  
+        for(var i in result) {  
+            alert(i+&quot;:&quot;+result[i]);//循环输出a:1,b:2,etc.  
+        }  
+    });  
+&amp;lt;/script&amp;gt;  
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&quot;ajax&quot;&gt;实现二：$.ajax&lt;/h3&gt;
+
+&lt;pre&gt;&lt;code&gt;&amp;lt;script type=&quot;text/javascript&quot; src=&quot;jquery.js&quot;&amp;gt;&amp;lt;/script&amp;gt; &amp;lt;script type=&quot;text/javascript&quot;&amp;gt;  
+    $.ajax({  
+        url:&quot;http://crossdomain.com/services.php&quot;,  
+        dataType:&#39;jsonp&#39;,  
+        data:&#39;&#39;,  
+        jsonp:&#39;callback&#39;,  
+        success:function(result) {  
+            for(var i in result) {  
+                alert(i+&quot;:&quot;+result[i]);//循环输出a:1,b:2,etc.  
+            }  
+        },  
+        timeout:3000  
+    });  
+&amp;lt;/script&amp;gt; 
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&quot;get&quot;&gt;实现三：$.get&lt;/h3&gt;
+
+&lt;pre&gt;&lt;code&gt;&amp;lt;script type=&quot;text/javascript&quot; src=&quot;jquery.js&quot;&amp;gt;&amp;lt;/script&amp;gt;  
+&amp;lt;script type=&quot;text/javascript&quot;&amp;gt;  
+    $.get(&#39;http://crossdomain.com/services.php?callback=?&#39;, {name: encodeURIComponent(&#39;tester&#39;)}, function (json) { for(var i in json) alert(i+&quot;:&quot;+json[i]); }, &#39;jsonp&#39;);  
+&amp;lt;/script&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;其中 jsonCallback 是客户端注册的，获取 跨域服务器 上的json数据 后，回调的函数。&lt;/p&gt;
+
+&lt;h2 id=&quot;jsonp&quot;&gt;JSONP的原理&lt;/h2&gt;
+
+&lt;p&gt;1，首先在客户端注册一个callback, 然后把callback的名字传给服务器。&lt;/p&gt;
+
+&lt;p&gt;2，服务器先生成 json 数据。&lt;/p&gt;
+
+&lt;p&gt;3，服务器端将生成的json数据作为入参，放置到callback的回调函数名中。这样就生成了一段js语法的文档，返回给客户端。&lt;/p&gt;
+
+&lt;p&gt;4，客户端浏览器，解析script标签，并执行返回的 javascript 文档，此时数据作为参数，传入到了客户端预先定义好的 callback 函数里.（动态执行回调函数）&lt;/p&gt;
+
+</content>
+ </entry>
+ 
+ <entry>
+   <title>使用快盘同步</title>
+   <link href="http://changer119.github.io/?p=106"/>
+   <updated>2015-03-13T00:00:00+08:00</updated>
+   <id>http://changer119.github.io/%e4%bd%bf%e7%94%a8%e5%bf%ab%e7%9b%98%e5%90%8c%e6%ad%a5</id>
+   <content type="html">&lt;p&gt;我算一个深度的Dropbox用户，从2009年就开始使用，特别是工作后经常的单位和家两地切换，Dropbox就使用的更加频繁了。有了Dropbox后，我就抛掉了U盘，文件图片之类的全部通过Dropbox同步搞定。大概从2014年11-2月开始Dropbox被GFW墙掉了，Dropbox一直提示“SSL连接出错”。有时候好不容易连接上了，同步了一两个文件后又抽疯，后面就直接罢工了。刚开始碰到这种情况时，我花了九牛二虎之力去网上搜解决方案。修改Host、配置代理，我都试过了，Dropbox依然处在大洋彼岸，而我始终连接不上。没有了Dropbox，同步文件非常的不方便，但又不愿意使用115网盘，就这样忍受着。&lt;/p&gt;
+
+&lt;p&gt;今天，因为要在单位和家里同时修改一份简历的缘故。我又想起了Dropbox，但天朝依然没有将其解封。无奈之下，我搜索“Dropbox 替代”，在知乎找到了有关讨论&lt;a href=&quot;http://www.zhihu.com/question/19647014&quot;&gt;点击跳转&lt;/a&gt;。大致浏览一遍后我选择了“金山快盘”。注册快盘后，在登录Web端时，居然出现了错误，刷新后才看到内容。看来快盘自己还有待改进。安装PC端的同步客户端后，它在本地建立了一个主目录，里面存放要同步的文件。简单那试用后，发现快盘做的还不错。基本功能上，已经做得和Dropbox类似了，右侧还会弹出一个panel，用户显示同步的相关信息。&lt;/p&gt;
+
+&lt;p&gt;以后就会用快盘替代Dropbox。&lt;/p&gt;
+
+&lt;p&gt;【注】中国的互联网用户好痛苦，先是用国外最好的服务，后因为GFW，总要切换到国内的山寨产品上来。&lt;/p&gt;
+
+</content>
+ </entry>
+ 
+ <entry>
+   <title>DOM对象和jQuery对象转换</title>
+   <link href="http://changer119.github.io/?p=101"/>
+   <updated>2015-01-13T00:00:00+08:00</updated>
+   <id>http://changer119.github.io/dom%e5%af%b9%e8%b1%a1%e5%92%8cjquery%e5%af%b9%e8%b1%a1%e8%bd%ac%e6%8d%a2</id>
+   <content type="html">&lt;h2 id=&quot;dom&quot;&gt;DOM对象&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code&gt;[javascript]
+//DOM对象是JS原生的对象，它具备自己一套方法。
+var aa = document.getElementById(&quot;aa&quot;);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&quot;jquery&quot;&gt;jQuery对象&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code&gt;[javascript]
+//jQuery对象通过“选择器”获取，$aa是一个数组对象
+var $aa = $(&quot;#aa&quot;);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&quot;jquery-8211-dom&quot;&gt;从jQuery对象 –&amp;gt; DOM对象&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code&gt;[javascript]
+//方式1
+var index = 0;
+var bb = $aa[index];
+//方式2
+var bb = $aa.get(index);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&quot;dom-8211-jquery&quot;&gt;从DOM对象 –&amp;gt; jQuery对象&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code&gt;[javascript]
+//通过$()方式来转化
+$cc = $(aa);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;strong&gt;this&lt;/strong&gt;和&lt;strong&gt;$(this)&lt;/strong&gt; 就是上面介绍的DOM和jQuery对象的2种特殊情况。&lt;/p&gt;
+
+&lt;p&gt;看看下面的一段代码：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;[html]
+&amp;lt;input type=&quot;button&quot; value=&quot;点击&quot; onclick=&quot;onclickHandler(this)&quot; /&amp;gt;
+&amp;lt;input type=&quot;button&quot; value=&quot;点击2&quot; onclick=&quot;onclickHandler2($(this))&quot; /&amp;gt;
+&amp;lt;script&amp;gt;
+function onclickHandler(domObj){
+    //this作为实参传递进来，代指input的DOM对象，输出&quot;点击&quot;
+    console.log(domObj.value);
+}
+function onclickHandler2(jqObj){
+    //$(this)作为实参传递进来，代指input的jQuery对象，输出&quot;点击2&quot;
+    console.log(jqObj[0].value);
+}
+&amp;lt;/script&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+</content>
+ </entry>
+ 
+ <entry>
+   <title>2014年底陪护老爸</title>
+   <link href="http://changer119.github.io/?p=99"/>
+   <updated>2015-01-08T00:00:00+08:00</updated>
+   <id>http://changer119.github.io/2014%e5%b9%b4%e5%ba%95%e9%99%aa%e6%8a%a4%e8%80%81%e7%88%b8</id>
+   <content type="html">&lt;p&gt;2014年，真是一个极其难熬的年份，对于老爸而言更是这样。春节那会，老爸去衡阳市附一医院做了一个颈椎手术，修养了8天多才出院。这到年底了，老爸又因为呼气困难，到衡阳市中心医院住院。这次住院了12天，直到2015年1月2日才出院。老爸生病住院期间，我和老弟都回衡阳，陪在他身边。下面我就简单的记录下生病住院的一些过程。&lt;/p&gt;
+
+&lt;h2 id=&quot;section&quot;&gt;2014-12-23 周二&lt;/h2&gt;
+
+&lt;p&gt;这天是礼拜二，老妈和老爸早上6点多到烟洲镇上赶衡阳的班车，准备到衡阳市中心医院看病。其实，早在几天前，老爸就呼气困难，每天晚上都无法安睡。只要平躺下来，就呼气不赢，必须坐起来，直着身子，顺着呼气才好。每天晚上老妈醒来的时候，总会老爸坐起来垂着头在打瞌睡。老妈看着心里也挺难受的，就准备陪老爸去衡阳医院看看。所以，等过了周末和周一（农历初一，老妈迷信），礼拜二他们两就来到衡阳中心医院了。&lt;/p&gt;
+
+&lt;p&gt;在表姐TanMing的帮助下，老爸直接住院了，因为他当时的情况已十分危急。医生需要帮他平稳呼吸，同时需要拍片子，诊断呼气困难的原因。当天，老妈陪着老爸做了一个普通的CT和一个增强CT。增强CT显示老爸肺部有肿瘤。老妈给我打电话，她就哭了，我在挂完电话后也止不住哭了。老弟买了当晚的火车，明天早上到家。我想这时候老妈需要我们在她身边。老爸不知道情况，老妈也只是告诉她是肺气肿，让他安心休息，过几天就好。&lt;/p&gt;
+
+&lt;h2 id=&quot;section-1&quot;&gt;2014-12-24 周三&lt;/h2&gt;
+
+&lt;p&gt;早上4点多，老弟就到衡阳了，他在KFC睡到天亮后就直奔医院而去。新的一天，他将慢慢接过老妈身上的担子，与她一起担着。老弟对爸妈是非常贴心的，每次家里有一点儿事，他总是能及时从广东赶回来，而每次又都是把事情处理好后再回广东的。这一天，老弟应该找医生了解了老爸的病情，他告诉我老爸是肺衰竭、心脏衰竭、肺部肿瘤。我还在杭州，只能干着急，在网上搜索了一些有关肺部肿瘤的知识，希望能够多了解点，对了解老爸的病情有帮助。我想知道确证肿瘤良、恶性的方法，让老弟进一步跟医生多聊聊。&lt;/p&gt;
+
+&lt;p&gt;我决定回一趟家，去看看老爸。确定周五晚上出发，休3天年假，加上元旦3天，一共可在家呆8天，希望能够陪着老爸老妈，现在我是他们的支柱与依靠。因为23号来的时候，老妈未曾想到会住院，所以今天她决定跟老弟回一趟家。一来带一些生活用品到医院来，二来安排下家里的事情。因为老妈晕车厉害，老弟跟她一起坐车回家去。老爸晚上就只能用八宝粥充饥了。明天早上老弟会再来陪护老爸的。&lt;/p&gt;
+
+&lt;h2 id=&quot;section-2&quot;&gt;2014-12-25 周四&lt;/h2&gt;
+
+&lt;p&gt;老弟早上从家里坐班车到衡阳，老妈在家呆着。我在杭州上班。&lt;/p&gt;
+
+&lt;p&gt;老弟估计是早上9点多到医院的，老爸拿八宝粥当早饭。中饭是老弟从医院外面的小炒店给炒的猪肚。听说医院食堂的饭菜很难吃，老弟挺有心的从外面炒了老爸最爱吃的菜。老爸很喜欢猪肚的嚼头，每年过年的时候，如果有猪肚，他都会拿出来好好的说一道，因为在他心中，这是最好的菜了。我虽然人在杭州，但上班也没什么心思，上班期间总会到网上搜一些有关肺癌的信息。&lt;/p&gt;
+
+&lt;p&gt;下班后，我跟老弟聊天，让他周五晚上回家，我周六会接手照顾老爸。这天晚上，我让小朱也跟老爸老妈聊了会天，主要是安慰下他们两。小朱晚上给了我200块钱，让我带回去给老爸买一些营养品吃。这天晚上，老弟没有出去找宾馆住，而是在网吧里待了整整一夜。他在医院周边问了下，住宿大概要60-70一晚上，而听说火车站那边有40多一晚上的。他本来准备去火车站那边住宿的，但考虑到已经夜深，所以索性在网吧过了。后来听他自己说，那个网吧环境还可以，就是睡着之后脚还是很凉的。&lt;/p&gt;
+
+&lt;h2 id=&quot;section-3&quot;&gt;2014-12-26 周五&lt;/h2&gt;
+
+&lt;p&gt;我准备坐晚上6点多火车回家，预计周六早上9点样子到。我今天没干什么活，只是把几个bug走了下单。下午4点的时候就下班赶火车去了。&lt;/p&gt;
+
+&lt;p&gt;根据之前的安排，老弟今天下午已经坐2点钟的班车回家里了。老爸的晚饭，老弟应该准备好了，但我不知道老爸有没有用医院的微波炉热一下晚饭。我问了老爸，他是说热过了，但按照他一贯嫌麻烦的习惯，我觉得很大可能他就直接吃冷饭了。我当时就跟老爸说过，周六的早饭我送给他吃，免得再吃冷的八宝粥。&lt;/p&gt;
+
+&lt;h2 id=&quot;section-4&quot;&gt;2014-12-27 周六&lt;/h2&gt;
+
+&lt;p&gt;火车晚点了，到了9点多还在衡山站，估计到衡阳得10点了。老爸估计也饿了，他打电话给我，说早饭就不用我带了，他吃了八宝粥了。老爸很聪明，他用一个大水杯，装满开水后将瓶装八宝粥放进去，等八宝粥温了再吃。我下了火车就走路去医院，医院过了衡阳的老大桥左拐就到了。在前往医院的路上，我看到路边有绿豆沙饼买，就买了一点过去。我要买这个绿豆饼，是因为它像我之前从杭州带回家的板栗饼，老爸挺喜欢板栗饼的。&lt;/p&gt;
+
+&lt;p&gt;来到医院，看到老爸正在输液，鼻孔里还塞一根导管在吸氧。我叫了一声“爸爸”，老爸老实地看着我，没有太多的表情，因为自己的家人来了。老爸脸上的皱纹更深了，人也变瘦了很多。几句对话后，老爸就让我不要在病房待了，他说这里是呼吸科，可能有传染。这句话后来我在老爸老妈那里听到n回，他们就是担心我们年轻人的身体。&lt;/p&gt;
+
+&lt;p&gt;我从病房里出来后，就在周边熟悉了下环境。中饭是在一家蒸菜馆买的蒜苗炒猪肚和辣椒炒肉。老爸嫌辣椒炒肉都是肥肉不愿意吃。蒜苗炒猪肚他还是很喜欢的。衡阳的菜都比较辣，而且加了生姜，这些老爸是忌食的，但没有办法，每顿还得给他买。吃完中饭后，我去找老爸的主治医生了解病情。她给我看了CT检查结论，给我分析说老爸可能是肺癌晚期。我听着这些没有太大的情绪波动，但当我跟老妈或者老爸聊天时，心里就会有种想哭劲。有时候总会在想为什么自己会碰上这种事情？转念又得安慰自己，如果真是这样，那我还得接受。&lt;/p&gt;
+
+&lt;p&gt;晚饭给老爸买的什么，我已记不太清楚了。反正是等老爸吃好晚饭，给他打好开水后，老爸又催促我出去了。照顾老爸的这一天，我跟他待在一起的时间并不长，只是在饭点的时候给他送饭来。有时我特别 想跟他多待一会，哪怕随便聊聊天也好，但老爸总是考虑我的健康，不让我在病房长待。&lt;/p&gt;
+
+&lt;h2 id=&quot;section-5&quot;&gt;2014-12-28 周日&lt;/h2&gt;
+
+&lt;p&gt;老妈和老弟今天不来衡阳，我继续一个人照顾老爸。说是照顾，其实也就送3餐饭而已。&lt;/p&gt;
+
+&lt;p&gt;中午那会天气很好，我陪着老爸下来，在市医院斜对面的公园转了一会。后来又走到湘江边站了一会，老爸还是有点儿出气不赢，我就陪老爸会病房了。在外面总共就转了30分钟吧。&lt;/p&gt;
+
+&lt;h2 id=&quot;section-6&quot;&gt;2014-12-29 周一&lt;/h2&gt;
+
+&lt;p&gt;老妈和老弟今天到衡阳，我们需要一块商量下老爸后续检查的事情。看到老妈时发现她皱纹又深了，她带着一顶淡粉红色的帽子，穿着暗绿色的羽绒服。老爸的病估计让老妈着急、担心了不少。老弟也瘦了，留着很长的头发，感觉有点儿邋遢但人蛮精神的。&lt;/p&gt;
+
+&lt;p&gt;老妈会在病房一直陪着老爸，我和老弟就多半在宾馆里呆着。老爸估计也不太会跟老妈唠家常，因为他本来就是一个话不多的人。&lt;/p&gt;
+
+&lt;p&gt;中午太阳不错，我们又到湘江边转转去了。老爸总是站着，看着江对面，跟老弟聊着“衡阳城市还是很大啊”，而我就陪着老妈坐一边的阶梯上。老妈担心老爸的身体，要真是癌症的话，老妈可怎么过啊？她聊着的时候，哭了，我试图从肩上搂抱着老妈，但她不太愿意，因为她觉得自己以前等过肺结核，怕影响到我。&lt;/p&gt;
+
+&lt;h2 id=&quot;section-7&quot;&gt;2014-12-30 周二&lt;/h2&gt;
+
+&lt;p&gt;支气管镜检查&lt;/p&gt;
+
+&lt;h2 id=&quot;section-8&quot;&gt;2014-12-31 周三&lt;/h2&gt;
+
+&lt;p&gt;岳屏公园喝茶打牌&lt;/p&gt;
+
+&lt;h2 id=&quot;section-9&quot;&gt;2015-01-01 周四&lt;/h2&gt;
+
+&lt;p&gt;天气不好没有出去转&lt;/p&gt;
+
+&lt;h2 id=&quot;section-10&quot;&gt;2015-01-02 周五&lt;/h2&gt;
+
+&lt;p&gt;老爸出院，老妈和老弟陪老爸回家，我从衡阳坐火车回杭州。&lt;/p&gt;
+</content>
+ </entry>
+ 
+ <entry>
+   <title>老爸呼吸困难住院</title>
+   <link href="http://changer119.github.io/?p=92"/>
+   <updated>2014-12-23T00:00:00+08:00</updated>
+   <id>http://changer119.github.io/%e8%80%81%e7%88%b8%e5%91%bc%e5%90%b8%e5%9b%b0%e9%9a%be%e4%bd%8f%e9%99%a2</id>
+   <content type="html">&lt;p&gt;今天杭州天气很好，冬日的阳光灿烂而且温暖，但不知道老家衡阳的天气如何。今天老妈陪着老爸去衡阳市中心医院看病去。我的心情也十分沉重。&lt;/p&gt;
+
+&lt;p&gt;今年老爸的运势就特别不好，春节的时候因为颈椎去南华附一动过手术，住院7-8天。手术康复出院后，老爸又重操旧业，烟酒一样都不能少，本来身体就不太好，这样一来，到了冬天冷的时候就各种毛病都犯了。一周之前，我打电话回去的时候就听老妈说爸爸最近呼吸困难，他一直不愿意到医院去看，硬是拖了好几天，后来越来越严重了才跑到镇上去输液。本来慢慢好起来了，上周六我再打电话回去的时候由变严重了。实在拖不下去了，今天老妈带着老爸到衡阳市中心医院检查了。&lt;/p&gt;
+
+&lt;p&gt;从家里到镇上去坐中巴车有一段距离，老爸肯定是走不过去的，他骑摩托车估计也不太可能，我都不知道他们怎么到镇上的。上午10点多的时候，老弟电话过来告诉我老爸老妈已经到医院了，正在准备办理住院手续。有一些检查结果要到下午5点多才能够拿到，还没有确切的结论，但医生还是认为老爸的病情比较严重。我下午2点半的时候打电话过去，老妈说医生刚刚跟老弟通过电话了，说是情况不理想。老妈在电话里头已经在哭了，我只能安慰她说老爸没事的。其实我自己的心里也不好受，我也有种想哭的冲动，但我不能表现出来，我是整个家庭的依靠，我要坚强的承担起来。老弟今天晚上的火车，明天早上到衡阳。他会陪着老妈在医院护理老爸。老弟在身边，不仅可以去跑跑手续，也可以陪老妈说说话。&lt;/p&gt;
+
+&lt;p&gt;晚上7点多的样子，我又打电话给老爸，他说妈妈下楼去了，说是买吃的去了。原来，老爸吃了点中午剩下的盒饭，老妈估计还没吃，剩饭也没有了，只好再下去买点东西吃。听到这段的时候，我心里揪着难受，她一个人这么冷的天还得去完全不熟悉的地方去买晚饭。老妈是一个坚强的女性，她的肩膀能够扛起一切，但我还是希望不是她一个人来扛。我和老弟应该扛起来。老弟能够围绕在爸妈身边，爸妈有需要时，他总是第一个站出来，我真的非常的感谢有这么好的一个弟弟。他才有一个哥哥的风范。挂断这个电话后，我当着Sue的面哭了。哭完之后，我会更坚强，爸妈、老弟，我们会一起面对这些困难的。&lt;/p&gt;
+
+&lt;p&gt;2014年快过去了，这是老爸的一个坎，跨过去就一切都好了。&lt;/p&gt;
+</content>
+ </entry>
+ 
+ <entry>
+   <title>数据库的3种范式</title>
+   <link href="http://changer119.github.io/?p=96"/>
+   <updated>2014-12-23T00:00:00+08:00</updated>
+   <id>http://changer119.github.io/%e6%95%b0%e6%8d%ae%e5%ba%93%e7%9a%843%e7%a7%8d%e8%8c%83%e5%bc%8f</id>
+   <content type="html">&lt;p&gt;范式（Normal Form），可以理解为&lt;strong&gt;标准样式&lt;/strong&gt;，它定义了一些常见的规则。在设计数据库表时，一般需要遵循3种范式：1NF、2NF、3NF。&lt;/p&gt;
+
+&lt;h3 id=&quot;nf&quot;&gt;1NF（第一范式）&lt;/h3&gt;
+
+&lt;table&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;
+      &lt;td&gt;表明数据库表中&lt;strong&gt;列不可分性&lt;/strong&gt;。用一个表t_personInfo（个人基本信息表），它有字段（姓名，年龄、毕业学校）。如果一个人是研究生毕业，它的&lt;strong&gt;毕业学校&lt;/strong&gt;字段就可以再分解成（本科毕业学校&lt;/td&gt;
+      &lt;td&gt;硕士毕业学校），这样一来&lt;strong&gt;毕业学校&lt;/strong&gt;字段就可以再分解，它就不满足第一范式。&lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;h3 id=&quot;nf-1&quot;&gt;2NF（第二范式）&lt;/h3&gt;
+
+&lt;p&gt;首先，2NF必须先满足1NF，在此基础上还需满足：&lt;strong&gt;行唯一性&lt;/strong&gt;（含有主键）、&lt;strong&gt;没有包含在主键中的列必须完全依赖于主键，而不能只依赖于主键的一部分&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;p&gt;这里也有一个例子（摘抄至网上）：&lt;/p&gt;
+
+&lt;p&gt;考虑一个订单明细表：【OrderDetail】（OrderID，ProductID，UnitPrice，Discount，Quantity，ProductName）。&lt;br /&gt;
+因为我们知道在一个订单中可以订购多种产品，所以单单一个 OrderID 是不足以成为主键的，主键应该是（OrderID，ProductID）。显而易见 Discount（折扣），Quantity（数量）完全依赖（取决）于主键（OderID，ProductID），而 UnitPrice，ProductName 只依赖于 ProductID。所以 OrderDetail 表不符合 2NF。&lt;strong&gt;不符合 2NF 的设计容易产生冗余数据&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;p&gt;可以把【OrderDetail】表拆分为【OrderDetail】（OrderID，ProductID，Discount，Quantity）和【Product】（ProductID，UnitPrice，ProductName）来消除原订单表中UnitPrice，ProductName多次重复的情况。&lt;/p&gt;
+
+&lt;h3 id=&quot;nf-2&quot;&gt;3NF（第三范式）&lt;/h3&gt;
+
+&lt;p&gt;首先，3NF必须满足2NF，在此基础上还需满足：&lt;strong&gt;非主键列必须直接依赖于主键&lt;/strong&gt;，不能存在传递依赖。即不能存在：非主键列 A 依赖于非主键列 B，非主键列 B 依赖于主键的情况。&lt;/p&gt;
+
+&lt;p&gt;这里也介绍一个例子：&lt;/p&gt;
+
+&lt;p&gt;考虑一个订单表【Order】（OrderID，OrderDate，CustomerID，CustomerName，CustomerAddr，CustomerCity）主键是（OrderID）。&lt;/p&gt;
+
+&lt;p&gt;其中 OrderDate，CustomerID，CustomerName，CustomerAddr，CustomerCity 等非主键列都完全依赖于主键（OrderID），所以符合 2NF。&lt;/p&gt;
+
+&lt;p&gt;不过问题是 CustomerName，CustomerAddr，CustomerCity 直接依赖的是 CustomerID（非主键列），而不是直接依赖于主键，它是通过传递才依赖于主键，所以不符合 3NF。&lt;/p&gt;
+
+&lt;p&gt;通过拆分【Order】为【Order】（OrderID，OrderDate，CustomerID）和【Customer】（CustomerID，CustomerName，CustomerAddr，CustomerCity）从而达到 3NF。&lt;/p&gt;
+
+&lt;h3 id=&quot;the-difference-between-2nf-and-3nf&quot;&gt;The difference between 2NF and 3NF&lt;/h3&gt;
+
+&lt;p&gt;2NF：非主键列是完全依赖于主键，&lt;strong&gt;还是依赖于主键的一部分&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;p&gt;3NF：非主键列是完全依赖于主键，&lt;strong&gt;还是依赖于非主键&lt;/strong&gt;。&lt;/p&gt;
 </content>
  </entry>
  
