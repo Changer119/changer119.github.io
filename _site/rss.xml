@@ -5,8 +5,8 @@
         <description>烂笔头 - fcjiang</description>
         <link>http://changer119.github.io</link>
         <atom:link href="http://changer119.github.io/rss.xml" rel="self" type="application/rss+xml" />
-        <lastBuildDate>Sat, 18 Jul 2015 13:39:00 +0800</lastBuildDate>
-        <pubDate>Sat, 18 Jul 2015 13:39:00 +0800</pubDate>
+        <lastBuildDate>Sat, 18 Jul 2015 14:55:15 +0800</lastBuildDate>
+        <pubDate>Sat, 18 Jul 2015 14:55:15 +0800</pubDate>
         <ttl>60</ttl>
 
 
@@ -1133,53 +1133,19 @@ function onclickHandler2(jqObj){
         </item>
 
         <item>
-                <title>数据库的3种范式</title>
-                <description>&lt;p&gt;范式（Normal Form），可以理解为&lt;strong&gt;标准样式&lt;/strong&gt;，它定义了一些常见的规则。在设计数据库表时，一般需要遵循3种范式：1NF、2NF、3NF。&lt;/p&gt;
+                <title>老爸呼吸困难住院</title>
+                <description>&lt;p&gt;今天杭州天气很好，冬日的阳光灿烂而且温暖，但不知道老家衡阳的天气如何。今天老妈陪着老爸去衡阳市中心医院看病去。我的心情也十分沉重。&lt;/p&gt;
 
-&lt;h3 id=&quot;nf&quot;&gt;1NF（第一范式）&lt;/h3&gt;
+&lt;p&gt;今年老爸的运势就特别不好，春节的时候因为颈椎去南华附一动过手术，住院7-8天。手术康复出院后，老爸又重操旧业，烟酒一样都不能少，本来身体就不太好，这样一来，到了冬天冷的时候就各种毛病都犯了。一周之前，我打电话回去的时候就听老妈说爸爸最近呼吸困难，他一直不愿意到医院去看，硬是拖了好几天，后来越来越严重了才跑到镇上去输液。本来慢慢好起来了，上周六我再打电话回去的时候由变严重了。实在拖不下去了，今天老妈带着老爸到衡阳市中心医院检查了。&lt;/p&gt;
 
-&lt;table&gt;
-  &lt;tbody&gt;
-    &lt;tr&gt;
-      &lt;td&gt;表明数据库表中&lt;strong&gt;列不可分性&lt;/strong&gt;。用一个表t_personInfo（个人基本信息表），它有字段（姓名，年龄、毕业学校）。如果一个人是研究生毕业，它的&lt;strong&gt;毕业学校&lt;/strong&gt;字段就可以再分解成（本科毕业学校&lt;/td&gt;
-      &lt;td&gt;硕士毕业学校），这样一来&lt;strong&gt;毕业学校&lt;/strong&gt;字段就可以再分解，它就不满足第一范式。&lt;/td&gt;
-    &lt;/tr&gt;
-  &lt;/tbody&gt;
-&lt;/table&gt;
+&lt;p&gt;从家里到镇上去坐中巴车有一段距离，老爸肯定是走不过去的，他骑摩托车估计也不太可能，我都不知道他们怎么到镇上的。上午10点多的时候，老弟电话过来告诉我老爸老妈已经到医院了，正在准备办理住院手续。有一些检查结果要到下午5点多才能够拿到，还没有确切的结论，但医生还是认为老爸的病情比较严重。我下午2点半的时候打电话过去，老妈说医生刚刚跟老弟通过电话了，说是情况不理想。老妈在电话里头已经在哭了，我只能安慰她说老爸没事的。其实我自己的心里也不好受，我也有种想哭的冲动，但我不能表现出来，我是整个家庭的依靠，我要坚强的承担起来。老弟今天晚上的火车，明天早上到衡阳。他会陪着老妈在医院护理老爸。老弟在身边，不仅可以去跑跑手续，也可以陪老妈说说话。&lt;/p&gt;
 
-&lt;h3 id=&quot;nf-1&quot;&gt;2NF（第二范式）&lt;/h3&gt;
+&lt;p&gt;晚上7点多的样子，我又打电话给老爸，他说妈妈下楼去了，说是买吃的去了。原来，老爸吃了点中午剩下的盒饭，老妈估计还没吃，剩饭也没有了，只好再下去买点东西吃。听到这段的时候，我心里揪着难受，她一个人这么冷的天还得去完全不熟悉的地方去买晚饭。老妈是一个坚强的女性，她的肩膀能够扛起一切，但我还是希望不是她一个人来扛。我和老弟应该扛起来。老弟能够围绕在爸妈身边，爸妈有需要时，他总是第一个站出来，我真的非常的感谢有这么好的一个弟弟。他才有一个哥哥的风范。挂断这个电话后，我当着Sue的面哭了。哭完之后，我会更坚强，爸妈、老弟，我们会一起面对这些困难的。&lt;/p&gt;
 
-&lt;p&gt;首先，2NF必须先满足1NF，在此基础上还需满足：&lt;strong&gt;行唯一性&lt;/strong&gt;（含有主键）、&lt;strong&gt;没有包含在主键中的列必须完全依赖于主键，而不能只依赖于主键的一部分&lt;/strong&gt;。&lt;/p&gt;
-
-&lt;p&gt;这里也有一个例子（摘抄至网上）：&lt;/p&gt;
-
-&lt;p&gt;考虑一个订单明细表：【OrderDetail】（OrderID，ProductID，UnitPrice，Discount，Quantity，ProductName）。&lt;br /&gt;
-因为我们知道在一个订单中可以订购多种产品，所以单单一个 OrderID 是不足以成为主键的，主键应该是（OrderID，ProductID）。显而易见 Discount（折扣），Quantity（数量）完全依赖（取决）于主键（OderID，ProductID），而 UnitPrice，ProductName 只依赖于 ProductID。所以 OrderDetail 表不符合 2NF。&lt;strong&gt;不符合 2NF 的设计容易产生冗余数据&lt;/strong&gt;。&lt;/p&gt;
-
-&lt;p&gt;可以把【OrderDetail】表拆分为【OrderDetail】（OrderID，ProductID，Discount，Quantity）和【Product】（ProductID，UnitPrice，ProductName）来消除原订单表中UnitPrice，ProductName多次重复的情况。&lt;/p&gt;
-
-&lt;h3 id=&quot;nf-2&quot;&gt;3NF（第三范式）&lt;/h3&gt;
-
-&lt;p&gt;首先，3NF必须满足2NF，在此基础上还需满足：&lt;strong&gt;非主键列必须直接依赖于主键&lt;/strong&gt;，不能存在传递依赖。即不能存在：非主键列 A 依赖于非主键列 B，非主键列 B 依赖于主键的情况。&lt;/p&gt;
-
-&lt;p&gt;这里也介绍一个例子：&lt;/p&gt;
-
-&lt;p&gt;考虑一个订单表【Order】（OrderID，OrderDate，CustomerID，CustomerName，CustomerAddr，CustomerCity）主键是（OrderID）。&lt;/p&gt;
-
-&lt;p&gt;其中 OrderDate，CustomerID，CustomerName，CustomerAddr，CustomerCity 等非主键列都完全依赖于主键（OrderID），所以符合 2NF。&lt;/p&gt;
-
-&lt;p&gt;不过问题是 CustomerName，CustomerAddr，CustomerCity 直接依赖的是 CustomerID（非主键列），而不是直接依赖于主键，它是通过传递才依赖于主键，所以不符合 3NF。&lt;/p&gt;
-
-&lt;p&gt;通过拆分【Order】为【Order】（OrderID，OrderDate，CustomerID）和【Customer】（CustomerID，CustomerName，CustomerAddr，CustomerCity）从而达到 3NF。&lt;/p&gt;
-
-&lt;h3 id=&quot;the-difference-between-2nf-and-3nf&quot;&gt;The difference between 2NF and 3NF&lt;/h3&gt;
-
-&lt;p&gt;2NF：非主键列是完全依赖于主键，&lt;strong&gt;还是依赖于主键的一部分&lt;/strong&gt;。&lt;/p&gt;
-
-&lt;p&gt;3NF：非主键列是完全依赖于主键，&lt;strong&gt;还是依赖于非主键&lt;/strong&gt;。&lt;/p&gt;
+&lt;p&gt;2014年快过去了，这是老爸的一个坎，跨过去就一切都好了。&lt;/p&gt;
 </description>
-                <link>http://changer119.github.io/%E7%A0%94%E7%A3%A8%E6%8A%80%E6%9C%AF/2014/12/23/%E6%95%B0%E6%8D%AE%E5%BA%93%E7%9A%843%E7%A7%8D%E8%8C%83%E5%BC%8F</link>
-                <guid>http://changer119.github.io/%E7%A0%94%E7%A3%A8%E6%8A%80%E6%9C%AF/2014/12/23/数据库的3种范式</guid>
+                <link>http://changer119.github.io/%E7%82%B9%E6%BB%B4%E7%94%9F%E6%B4%BB/2014/12/23/%E8%80%81%E7%88%B8%E5%91%BC%E5%90%B8%E5%9B%B0%E9%9A%BE%E4%BD%8F%E9%99%A2</link>
+                <guid>http://changer119.github.io/%E7%82%B9%E6%BB%B4%E7%94%9F%E6%B4%BB/2014/12/23/老爸呼吸困难住院</guid>
                 <pubDate>Tue, 23 Dec 2014 00:00:00 +0800</pubDate>
         </item>
 
