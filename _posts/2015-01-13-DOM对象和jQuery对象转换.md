@@ -1,13 +1,10 @@
 ---
 title: DOM对象和jQuery对象转换
-author: admin
 layout: post
-permalink: /?p=101
 categories:
   - 研磨技术
-tags:
-  - JavaScript
 ---
+
 ## DOM对象
 
     [javascript]

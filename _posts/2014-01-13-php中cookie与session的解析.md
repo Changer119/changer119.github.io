@@ -1,13 +1,11 @@
 ---
 title: php中cookie与session的解析
-author: admin
 layout: post
-permalink: /?p=28
-duoshuo_thread_id:
-  - 1159122750187503624
 categories:
   - 研磨技术
+  - Web相关
 ---
+
 以前在学java web开发时就大致了解了cookie和session，当时觉得它们的主要差别就是：“cookie存放在客户端，而session存储在服务器端”，其它的区别就记不太清楚了。今天，在学习php时又碰到了这一对兄弟。于是，简单的列一下两者的异同吧。
 
 **cookie**
