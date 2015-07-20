@@ -4,7 +4,7 @@
  <title>烂笔头</title>
  <link href="http://changer119.github.io/atom.xml" rel="self"/>
  <link href="http://changer119.github.io"/>
- <updated>2015-07-18T15:05:22+08:00</updated>
+ <updated>2015-07-20T19:14:01+08:00</updated>
  <id>http://changer119.github.io</id>
  <author>
    <name>fcjiang</name>
@@ -539,18 +539,25 @@ public static void main(String[] args){
  </entry>
  
  <entry>
-   <title>Intellij入门</title>
+   <title>Intellij使用</title>
    <link href="http://changer119.github.io/2015/07/07/Intellij%E4%BD%BF%E7%94%A8"/>
    <updated>2015-07-07T00:00:00+08:00</updated>
    <id>http://changer119.github.io/2015/07/07/Intellij使用</id>
    <content type="html">&lt;h2 id=&quot;svnmaven&quot;&gt;导出svn上的maven工程&lt;/h2&gt;
-&lt;ol&gt;
-  &lt;li&gt;ld&lt;/li&gt;
-  &lt;li&gt;代码checkout到本地后，查看代码发现都有红色的问号（表示有错误）。这是因为Intellij没有自动刷新导致的。只要点击Intellij右侧MavenProjects，再点击刷新图标即可。
-&lt;img src=&quot;../_images/QQ20150707-1@2x.png&quot; alt=&quot;图片说明&quot; /&gt;&lt;/li&gt;
-&lt;/ol&gt;
 
-&lt;h1 id=&quot;intellij&quot;&gt;Intellij常用快捷键&lt;/h1&gt;
+&lt;p&gt;1, 新建Maven工程。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://changer119.github.io/assets/images/QQ20150720-1.png&quot; alt=&quot;从svn新建项目&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;2，在IdeaWorspace目录下，新建一个文件夹，名字和checkout的分支名一样。然后将新工程指定放在该目录下，开始checkout代码。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://changer119.github.io/assets/images/QQ20150720-2.png&quot; alt=&quot;新建文件夹&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;3，代码checkout到本地后，查看代码发现都有红色的问号（表示有错误）。这是因为Intellij没有自动刷新导致的。只要点击Intellij右侧MavenProjects，再点击刷新图标即可。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://changer119.github.io/assets/images/QQ20150707-1@2x.png&quot; alt=&quot;图片说明&quot; /&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;intellij&quot;&gt;Intellij常用快捷键&lt;/h2&gt;
 
 &lt;table&gt;
   &lt;thead&gt;
@@ -571,6 +578,10 @@ public static void main(String[] args){
     &lt;tr&gt;
       &lt;td&gt;&lt;code&gt;alt + F7&lt;/code&gt;&lt;/td&gt;
       &lt;td&gt;查找方法或者类被引用的地方&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;&lt;code&gt;double shift&lt;/code&gt;&lt;/td&gt;
+      &lt;td&gt;查找类&lt;/td&gt;
     &lt;/tr&gt;
     &lt;tr&gt;
       &lt;td&gt;&lt;code&gt;cmd + shift + F&lt;/code&gt;&lt;/td&gt;

@@ -5,7 +5,7 @@
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="chrome=1" />
     <meta name="author" content="fcjiang" />
-    <title>Intellij入门</title>
+    <title>Intellij使用</title>
 
     <link rel="stylesheet" href="/assets/themes/dinky/css/styles.css">
     <link rel="stylesheet" href="/assets/themes/dinky/css/pygment_trac.css">
@@ -108,16 +108,23 @@
       <section>
       
 <section>
-  <h1>Intellij入门</h1>
+  <h1>Intellij使用</h1>
 
   <h2 id="svnmaven">导出svn上的maven工程</h2>
-<ol>
-  <li>ld</li>
-  <li>代码checkout到本地后，查看代码发现都有红色的问号（表示有错误）。这是因为Intellij没有自动刷新导致的。只要点击Intellij右侧MavenProjects，再点击刷新图标即可。
-<img src="../_images/QQ20150707-1@2x.png" alt="图片说明" /></li>
-</ol>
 
-<h1 id="intellij">Intellij常用快捷键</h1>
+<p>1, 新建Maven工程。</p>
+
+<p><img src="http://changer119.github.io/assets/images/QQ20150720-1.png" alt="从svn新建项目" /></p>
+
+<p>2，在IdeaWorspace目录下，新建一个文件夹，名字和checkout的分支名一样。然后将新工程指定放在该目录下，开始checkout代码。</p>
+
+<p><img src="http://changer119.github.io/assets/images/QQ20150720-2.png" alt="新建文件夹" /></p>
+
+<p>3，代码checkout到本地后，查看代码发现都有红色的问号（表示有错误）。这是因为Intellij没有自动刷新导致的。只要点击Intellij右侧MavenProjects，再点击刷新图标即可。</p>
+
+<p><img src="http://changer119.github.io/assets/images/QQ20150707-1@2x.png" alt="图片说明" /></p>
+
+<h2 id="intellij">Intellij常用快捷键</h2>
 
 <table>
   <thead>
@@ -138,6 +145,10 @@
     <tr>
       <td><code>alt + F7</code></td>
       <td>查找方法或者类被引用的地方</td>
+    </tr>
+    <tr>
+      <td><code>double shift</code></td>
+      <td>查找类</td>
     </tr>
     <tr>
       <td><code>cmd + shift + F</code></td>
