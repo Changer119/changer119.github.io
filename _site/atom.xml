@@ -4,7 +4,7 @@
  <title>烂笔头</title>
  <link href="http://changer119.github.io/atom.xml" rel="self"/>
  <link href="http://changer119.github.io"/>
- <updated>2015-07-26T00:00:42+08:00</updated>
+ <updated>2015-07-29T10:41:51+08:00</updated>
  <id>http://changer119.github.io</id>
  <author>
    <name>fcjiang</name>
@@ -13,11 +13,124 @@
 
  
  <entry>
+   <title>Intellij远程调试Tomcat中的应用</title>
+   <link href="http://changer119.github.io/%E7%A0%94%E7%A3%A8%E6%8A%80%E6%9C%AF/2015/07/29/Intellij%E8%BF%9C%E7%A8%8B%E8%B0%83%E8%AF%95Tomcat%E4%B8%AD%E7%9A%84%E5%BA%94%E7%94%A8"/>
+   <updated>2015-07-29T00:00:00+08:00</updated>
+   <id>http://changer119.github.io/%E7%A0%94%E7%A3%A8%E6%8A%80%E6%9C%AF/2015/07/29/Intellij远程调试Tomcat中的应用</id>
+   <content type="html">&lt;p&gt;一个web应用部署到tomcat上去了，如何通过Intellij来调试呢？&lt;/p&gt;
+
+&lt;p&gt;你只需要两步操作，如下：&lt;/p&gt;
+
+&lt;h2 id=&quot;tomcat&quot;&gt;配置tomcat支持远程调试&lt;/h2&gt;
+
+&lt;p&gt;tomcat默认是没有开放远程调试端口的。你需要找到%CATALINA_HOME%/bin/catalina.sh文件，在这个文件的最上面加上下面配置：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;export JAVA_OPTS=&#39;-agentlib:jdwp=transport=dt_socket,address=53013,suspend=n,server=y&#39;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;上面的配置会让tomcat在启动后监听端口&lt;strong&gt;53013&lt;/strong&gt;，这个端口你可以自行改动。如果Intellij对这个端口发起请求时，就可以连接上tomcat并进行远程调试。&lt;/p&gt;
+
+&lt;h2 id=&quot;intellij&quot;&gt;配置Intellij的远程调试&lt;/h2&gt;
+
+&lt;p&gt;新增remote调试，配置tomcat在的服务器和监听端口，选择要调试的应用。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://changer119.qiniudn.com/QQ20150729-1.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://changer119.qiniudn.com/QQ20150729-2.png&quot; alt=&quot;新增remote调试&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;上图中端口应该为53013&lt;/p&gt;
+
+&lt;hr /&gt;
+
+&lt;p&gt;以上配置完成后，就可以启动远程调试了。&lt;/p&gt;
+
+&lt;p&gt;步骤一：正常启动tomcat&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt; %CATALINA_HOME%/bin/startup.sh
+ // 或者
+ %CATALINA_HOME%/bin/catalina.sh start
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;步骤二，启动intellij的远程调试&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://changer119.qiniudn.com/QQ20150729-3.png&quot; alt=&quot;启动intellij的远程调试&quot; /&gt;&lt;/p&gt;
+
+</content>
+ </entry>
+ 
+ <entry>
    <title>Spring上手</title>
    <link href="http://changer119.github.io/%E7%A0%94%E7%A3%A8%E6%8A%80%E6%9C%AF/2015/07/25/Spring%E4%B8%8A%E6%89%8B"/>
    <updated>2015-07-25T00:00:00+08:00</updated>
    <id>http://changer119.github.io/%E7%A0%94%E7%A3%A8%E6%8A%80%E6%9C%AF/2015/07/25/Spring上手</id>
-   <content type="html">
+   <content type="html">&lt;h2 id=&quot;spring&quot;&gt;Spring模块&lt;/h2&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://changer119.qiniudn.com/QQ20150725-3.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;spring-bean&quot;&gt;Spring Bean配置&lt;/h2&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://changer119.qiniudn.com/QQ20150726-1.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;ApplicationContext的3个实现：&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://changer119.qiniudn.com/QQ20150726-2.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://changer119.qiniudn.com/QQ20150726-3.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://changer119.qiniudn.com/QQ20150726-5.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://changer119.qiniudn.com/QQ20150726-6.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;创建内部bean&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://changer119.qiniudn.com/QQ20150726-7.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;为Map数据赋值&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://changer119.qiniudn.com/QQ20150726-8.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;为Properties赋值&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://changer119.qiniudn.com/QQ20150726-9.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://changer119.qiniudn.com/QQ20150726-10.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://changer119.qiniudn.com/QQ20150726-11.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://changer119.qiniudn.com/QQ20150726-12.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://changer119.qiniudn.com/QQ20150726-9.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://changer119.qiniudn.com/QQ20150726-9.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://changer119.qiniudn.com/QQ20150726-9.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://changer119.qiniudn.com/QQ20150726-9.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;factorybean&quot;&gt;通过FactoryBean实现注入&lt;/h3&gt;
+
+&lt;p&gt;用户需要实现FactoryBean接口，然后在beans.xml里配置bean，bean的class是指向自己写的那个类的全类名。&lt;/p&gt;
+
+&lt;p&gt;自己写的类，实现了Spring的FactoryBean接口&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://changer119.qiniudn.com/QQ20150726-14.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;beans.xml文件的配置&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://changer119.qiniudn.com/QQ20150726-13.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;section&quot;&gt;通过注解配置&lt;/h2&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://changer119.qiniudn.com/QQ20150726-15.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://changer119.qiniudn.com/QQ20150726-16.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;自动装配&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://changer119.qiniudn.com/QQ20150726-17.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://changer119.qiniudn.com/QQ20150726-18.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
 </content>
  </entry>
  
@@ -1103,22 +1216,6 @@ document.getElementsByTagName(&quot;head&quot;)[0].appendChild(JSONP);
 &lt;p&gt;&lt;strong&gt;经我实测，在客户端中不定义jsonpCallbackFunc方法，跨域也能够成功。&lt;/strong&gt;&lt;/p&gt;
 
 &lt;p&gt;&lt;strong&gt;跨域获得的数据能够自动传入ajax的success:function(data){}回调函数，data就是跨域所得数据。&lt;/strong&gt;&lt;/p&gt;
-
-</content>
- </entry>
- 
- <entry>
-   <title>使用快盘同步</title>
-   <link href="http://changer119.github.io/%E7%82%B9%E6%BB%B4%E7%94%9F%E6%B4%BB/2015/03/13/%E4%BD%BF%E7%94%A8%E5%BF%AB%E7%9B%98%E5%90%8C%E6%AD%A5"/>
-   <updated>2015-03-13T00:00:00+08:00</updated>
-   <id>http://changer119.github.io/%E7%82%B9%E6%BB%B4%E7%94%9F%E6%B4%BB/2015/03/13/使用快盘同步</id>
-   <content type="html">&lt;p&gt;我算一个深度的Dropbox用户，从2009年就开始使用，特别是工作后经常的单位和家两地切换，Dropbox就使用的更加频繁了。有了Dropbox后，我就抛掉了U盘，文件图片之类的全部通过Dropbox同步搞定。大概从2014年11-2月开始Dropbox被GFW墙掉了，Dropbox一直提示“SSL连接出错”。有时候好不容易连接上了，同步了一两个文件后又抽疯，后面就直接罢工了。刚开始碰到这种情况时，我花了九牛二虎之力去网上搜解决方案。修改Host、配置代理，我都试过了，Dropbox依然处在大洋彼岸，而我始终连接不上。没有了Dropbox，同步文件非常的不方便，但又不愿意使用115网盘，就这样忍受着。&lt;/p&gt;
-
-&lt;p&gt;今天，因为要在单位和家里同时修改一份简历的缘故。我又想起了Dropbox，但天朝依然没有将其解封。无奈之下，我搜索“Dropbox 替代”，在知乎找到了有关讨论&lt;a href=&quot;http://www.zhihu.com/question/19647014&quot;&gt;点击跳转&lt;/a&gt;。大致浏览一遍后我选择了“金山快盘”。注册快盘后，在登录Web端时，居然出现了错误，刷新后才看到内容。看来快盘自己还有待改进。安装PC端的同步客户端后，它在本地建立了一个主目录，里面存放要同步的文件。简单那试用后，发现快盘做的还不错。基本功能上，已经做得和Dropbox类似了，右侧还会弹出一个panel，用户显示同步的相关信息。&lt;/p&gt;
-
-&lt;p&gt;以后就会用快盘替代Dropbox。&lt;/p&gt;
-
-&lt;p&gt;【注】中国的互联网用户好痛苦，先是用国外最好的服务，后因为GFW，总要切换到国内的山寨产品上来。&lt;/p&gt;
 
 </content>
  </entry>

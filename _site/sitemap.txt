@@ -8,6 +8,7 @@ http://changer119.github.io/rss.xml
 http://changer119.github.io/sitemap.txt
 http://changer119.github.io/tags.html
 
+http://changer119.github.io/%E7%A0%94%E7%A3%A8%E6%8A%80%E6%9C%AF/2015/07/29/Intellij%E8%BF%9C%E7%A8%8B%E8%B0%83%E8%AF%95Tomcat%E4%B8%AD%E7%9A%84%E5%BA%94%E7%94%A8
 http://changer119.github.io/%E7%A0%94%E7%A3%A8%E6%8A%80%E6%9C%AF/2015/07/25/Spring%E4%B8%8A%E6%89%8B
 http://changer119.github.io/%E7%A0%94%E7%A3%A8%E6%8A%80%E6%9C%AF/2015/07/25/Java%E9%A1%B9%E7%9B%AE%E4%B8%AD%E8%B7%AF%E5%BE%84Path%E8%A7%A3%E6%9E%90
 http://changer119.github.io/%E5%96%84%E5%81%87%E4%BA%8E%E7%89%A9/2015/07/21/Beyond%20Compare%204%E8%AF%95%E7%94%A8%E7%89%88%E7%A0%B4%E8%A7%A3
