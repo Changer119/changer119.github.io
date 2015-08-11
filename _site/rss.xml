@@ -5,10 +5,106 @@
         <description>烂笔头 - fcjiang</description>
         <link>http://changer119.github.io</link>
         <atom:link href="http://changer119.github.io/rss.xml" rel="self" type="application/rss+xml" />
-        <lastBuildDate>Wed, 29 Jul 2015 10:41:51 +0800</lastBuildDate>
-        <pubDate>Wed, 29 Jul 2015 10:41:51 +0800</pubDate>
+        <lastBuildDate>Tue, 11 Aug 2015 10:13:19 +0800</lastBuildDate>
+        <pubDate>Tue, 11 Aug 2015 10:13:19 +0800</pubDate>
         <ttl>60</ttl>
 
+
+        <item>
+                <title>Nginx入门</title>
+                <description>&lt;h2 id=&quot;nginx&quot;&gt;为什么引入Nginx&lt;/h2&gt;
+
+&lt;p&gt;以前写web应用，html页面和java代码都放在一个web工程里。tomcat启动之后，用户按照web工程里的目录结构就可以访问到前端页面了。这种方式有一个弊端，那就是前端代码和后端代码耦合太大。引入Nginx，我们可以将前端代码当做一个工程，后端代码是另外一个工程。这样，只要将前端代码放在Nginx配置的root路径下，用于输入URL，Nginx就可以根据URL中的地址，找到要使用的前端页面，从而显示出来。&lt;/p&gt;
+
+&lt;h2 id=&quot;nginxmacpro&quot;&gt;安装Nginx（MacPro环境）&lt;/h2&gt;
+&lt;ol&gt;
+  &lt;li&gt;
+    &lt;p&gt;安装HomeBrew&lt;/p&gt;
+
+    &lt;p&gt;&lt;code&gt;
+ ruby -e &quot;$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)&quot;
+&lt;/code&gt;&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;安装Nginx&lt;/p&gt;
+
+    &lt;p&gt;&lt;code&gt;
+ brew install nginx
+&lt;/code&gt;&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;安装完成后，Nginx的基本配置信息如下：&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;Docroot is: /usr/local/var/www&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;The default port has been set in /usr/local/etc/nginx/nginx.conf to 8080 so that nginx can run without sudo.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;nginx will load all files in /usr/local/etc/nginx/servers/.&lt;/p&gt;
+
+  &lt;p&gt;The log is in /usr/local/var/log/nginx&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h2 id=&quot;nginx-1&quot;&gt;启动、关闭Nginx&lt;/h2&gt;
+
+&lt;p&gt;启动Nginx&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;nginx
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;关闭nginx&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;nginx -s stop
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Nginx还在运行，加载新的配置文件&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;nginx -s reload
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;指定配置文件，启动Nginx&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;nginx -c /file/to/configfile
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;查看配置文件是否合法&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;nginx -t
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;以上命令，如果出现权限不够，请加上sudo&lt;/p&gt;
+
+&lt;h2 id=&quot;nginx-2&quot;&gt;Nginx的配置&lt;/h2&gt;
+
+&lt;p&gt;Nginx默认读取的配置文件是&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;/usr/local/etc/nginx/nginx.conf
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://changer119.qiniudn.com/QQ20150811-1.png&quot; alt=&quot;nginx.conf文件&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;通过&lt;strong&gt;alias&lt;/strong&gt;方式，用户可以在地址栏输入&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;http://localhost/hellonginx2  
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;访问到存放在 /usr/local/var/www目录下的内容。&lt;/p&gt;
+
+&lt;p&gt;如果/usr/local/var/www目录下还有其它文件夹，例如hellonginx/，可以在地址栏追加这个目录，访问到hellonginx/目录下的内容。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;http://localhost/hellonginx2/hellonginx
+&lt;/code&gt;&lt;/pre&gt;
+
+</description>
+                <link>http://changer119.github.io/%E7%A0%94%E7%A3%A8%E6%8A%80%E6%9C%AF/2015/08/10/Nginx%E5%85%A5%E9%97%A8</link>
+                <guid>http://changer119.github.io/%E7%A0%94%E7%A3%A8%E6%8A%80%E6%9C%AF/2015/08/10/Nginx入门</guid>
+                <pubDate>Mon, 10 Aug 2015 00:00:00 +0800</pubDate>
+        </item>
 
         <item>
                 <title>Intellij远程调试Tomcat中的应用</title>
@@ -1165,56 +1261,6 @@ document.getElementsByTagName(&quot;head&quot;)[0].appendChild(JSONP);
 </description>
                 <link>http://changer119.github.io/%E7%A0%94%E7%A3%A8%E6%8A%80%E6%9C%AF/2015/03/24/%E8%B7%A8%E5%9F%9F%E5%B8%B8%E7%94%A8%E7%9A%84%E6%96%B9%E5%BC%8F%E4%BB%A5%E5%8F%8A%E5%8E%9F%E7%90%86</link>
                 <guid>http://changer119.github.io/%E7%A0%94%E7%A3%A8%E6%8A%80%E6%9C%AF/2015/03/24/跨域常用的方式以及原理</guid>
-                <pubDate>Tue, 24 Mar 2015 00:00:00 +0800</pubDate>
-        </item>
-
-        <item>
-                <title>ajax跨域访问</title>
-                <description>&lt;p&gt;ajax跨域访理解起来有点绕，网上能够搜到很多相关的帖子，但基本上都是抄至同一个人。 鉴于这个原因，我自己整理一下ajax跨域访问的实例，希望帮助到更多人。&lt;/p&gt;
-
-&lt;p&gt;我在本地有一个Java Web的应用，它需要访问远程主机（新浪SAE）的某个应用中的action。利用普通的ajax交互。&lt;/p&gt;
-
-&lt;p&gt;本地应用中ajax请求的代码：&lt;/p&gt;
-
-&lt;p&gt;&lt;a href=&quot;http://changer119.cn/fcjiang/wp-content/uploads/2015/03/1.png&quot;&gt;&lt;img src=&quot;http://changer119.cn/fcjiang/wp-content/uploads/2015/03/1.png&quot; alt=&quot;1&quot; width=&quot;878&quot; height=&quot;196&quot; class=&quot;alignnone size-full wp-image-110&quot; /&gt;&lt;/a&gt;&lt;/p&gt;
-
-&lt;p&gt;运行后得到错误提示：&lt;/p&gt;
-
-&lt;p&gt;&lt;a href=&quot;http://changer119.cn/fcjiang/wp-content/uploads/2015/03/2.png&quot;&gt;&lt;img src=&quot;http://changer119.cn/fcjiang/wp-content/uploads/2015/03/2.png&quot; alt=&quot;2&quot; width=&quot;875&quot; height=&quot;130&quot; class=&quot;alignnone size-full wp-image-111&quot; /&gt;&lt;/a&gt;&lt;/p&gt;
-
-&lt;p&gt;由上可知，通过普通的ajax来获取远程主机的数据（跨域访问）是不行的。&lt;/p&gt;
-
-&lt;p&gt;怎么样才能实现ajax的跨域访问呢？利用JSONP来进行ajax交互。具体JSONP是什么东西，大家可以google一下，略去。&lt;/p&gt;
-
-&lt;p&gt;下面介绍如何利用JSONP进行跨域访问。 本地应用中ajax请求代码：&lt;/p&gt;
-
-&lt;p&gt;&lt;a href=&quot;http://changer119.cn/fcjiang/wp-content/uploads/2015/03/3.png&quot;&gt;&lt;img src=&quot;http://changer119.cn/fcjiang/wp-content/uploads/2015/03/3.png&quot; alt=&quot;3&quot; width=&quot;810&quot; height=&quot;240&quot; class=&quot;alignnone size-full wp-image-112&quot; /&gt;&lt;/a&gt;&lt;/p&gt;
-
-&lt;p&gt;&lt;a href=&quot;http://changer119.cn/fcjiang/wp-content/uploads/2015/03/4.png&quot;&gt;&lt;img src=&quot;http://changer119.cn/fcjiang/wp-content/uploads/2015/03/4.png&quot; alt=&quot;4&quot; width=&quot;1272&quot; height=&quot;267&quot; class=&quot;alignnone size-full wp-image-113&quot; /&gt;&lt;/a&gt;&lt;/p&gt;
-
-&lt;p&gt;&lt;strong&gt;当然，要实现ajax跨域仅仅在客户端改用JSONP还是不行的，必须要远程主机上的action配合才行。&lt;/strong&gt;&lt;/p&gt;
-
-&lt;p&gt;远程主机action的代码：&lt;/p&gt;
-
-&lt;p&gt;&lt;a href=&quot;http://changer119.cn/fcjiang/wp-content/uploads/2015/03/5.png&quot;&gt;&lt;img src=&quot;http://changer119.cn/fcjiang/wp-content/uploads/2015/03/5.png&quot; alt=&quot;5&quot; width=&quot;884&quot; height=&quot;383&quot; class=&quot;alignnone size-full wp-image-114&quot; /&gt;&lt;/a&gt;&lt;/p&gt;
-
-&lt;p&gt;客户端在拿到ajax返回的数据如下：&lt;/p&gt;
-
-&lt;p&gt;&lt;a href=&quot;http://changer119.cn/fcjiang/wp-content/uploads/2015/03/6.png&quot;&gt;&lt;img src=&quot;http://changer119.cn/fcjiang/wp-content/uploads/2015/03/6.png&quot; alt=&quot;6&quot; width=&quot;803&quot; height=&quot;121&quot; class=&quot;alignnone size-full wp-image-115&quot; /&gt;&lt;/a&gt;&lt;/p&gt;
-
-&lt;p&gt;客户端jsonp的回调函数如下：&lt;/p&gt;
-
-&lt;p&gt;&lt;a href=&quot;http://changer119.cn/fcjiang/wp-content/uploads/2015/03/7.png&quot;&gt;&lt;img src=&quot;http://changer119.cn/fcjiang/wp-content/uploads/2015/03/7.png&quot; alt=&quot;7&quot; width=&quot;606&quot; height=&quot;63&quot; class=&quot;alignnone size-full wp-image-116&quot; /&gt;&lt;/a&gt;&lt;/p&gt;
-
-&lt;p&gt;【注】&lt;/p&gt;
-
-&lt;p&gt;&lt;strong&gt;经我实测，在客户端中不定义jsonpCallbackFunc方法，跨域也能够成功。&lt;/strong&gt;&lt;/p&gt;
-
-&lt;p&gt;&lt;strong&gt;跨域获得的数据能够自动传入ajax的success:function(data){}回调函数，data就是跨域所得数据。&lt;/strong&gt;&lt;/p&gt;
-
-</description>
-                <link>http://changer119.github.io/%E7%A0%94%E7%A3%A8%E6%8A%80%E6%9C%AF/2015/03/24/ajax%E8%B7%A8%E5%9F%9F%E8%AE%BF%E9%97%AE</link>
-                <guid>http://changer119.github.io/%E7%A0%94%E7%A3%A8%E6%8A%80%E6%9C%AF/2015/03/24/ajax跨域访问</guid>
                 <pubDate>Tue, 24 Mar 2015 00:00:00 +0800</pubDate>
         </item>
 
