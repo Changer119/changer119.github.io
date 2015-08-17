@@ -113,11 +113,9 @@
   <p>情况1：图片放在changer119.github.io本地目录下。</p>
 
 <p>需要找到./assets/images/目录，将图片放到该目录下。在调用图片的地方使用如下语法：</p>
-
-<pre><code>![图片说明](http://changer119.github.io/assets/images/1.jpg)
-</code></pre>
-
-<p><img src="http://changer119.github.io/assets/images/1.jpg" alt="图片说明" /></p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">![图片说明](http://changer119.github.io/assets/images/1.jpg)
+</code></pre></div>
+<p><img src="http://changer119.github.io/assets/images/1.jpg" alt="图片说明"></p>
 
 <p>情况2：图片放在qiniu上。</p>
 
@@ -126,19 +124,14 @@
 <p>先将图片放在<em>/Users/fcjiang/qiniu-sync/QQSnapShot/</em>目录下。</p>
 
 <p>然后启用qiniu的同步工具：</p>
-
-<pre><code>qrsync //Users/fcjiang/Software/qiniu-devtools-darwin_amd64-v3.1.20150620/conf.json
-</code></pre>
-
+<div class="highlight"><pre><code class="language-text" data-lang="text">qrsync //Users/fcjiang/Software/qiniu-devtools-darwin_amd64-v3.1.20150620/conf.json
+</code></pre></div>
 <p>图片会自动上传到qiniu服务器的changer119目录中。</p>
 
 <p>要使用时，只需要</p>
-
-<pre><code>![图片说明](http://changer119.qiniudn.com/QQ20150720-2.png)
-</code></pre>
-
-<p><img src="http://changer119.qiniudn.com/QQ20150720-2.png" alt="图片说明" /></p>
-
+<div class="highlight"><pre><code class="language-text" data-lang="text">![图片说明](http://changer119.qiniudn.com/QQ20150720-2.png)
+</code></pre></div>
+<p><img src="http://changer119.qiniudn.com/QQ20150720-2.png" alt="图片说明"></p>
 
 
   

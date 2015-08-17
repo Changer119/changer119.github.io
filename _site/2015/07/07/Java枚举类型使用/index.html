@@ -113,109 +113,101 @@
   <p>Enum是JDK5引入的。有了Enum类型后，对于常量的处理更加方便。</p>
 
 <p>以前定义常量一般是这样的：</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">Constant.java
 
-<p>```
-Constant.java</p>
-
-<p>public interface Constant{
-	public final PI = 3.14;
-	public fianl G = 9.8;
+public interface Constant{
+    public final PI = 3.14;
+    public fianl G = 9.8;
 }
-```</p>
-
+</code></pre></div>
 <p>以前这些常量可能分散在不同的文件中，缺乏统一的管理，使用不方便。</p>
 
 <p>利用Enum类型，可以将常量定义成如下形式：</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">ColorEnum.java
 
-<p>```
-ColorEnum.java</p>
-
-<p>public enum ColorEnum{
-	RED, GREEN, YELLOW;
+public enum ColorEnum{
+    RED, GREEN, YELLOW;
 }
-```</p>
-
+</code></pre></div>
 <p>如果觉得上面的枚举太过简单，可以给ColorEnum添加方法。</p>
-
-<p>```
-public enum Color {
+<div class="highlight"><pre><code class="language-text" data-lang="text">public enum Color {
     // 必须先定义枚举类Color的实例
-    Red(1, “红色”),
-    Green(2, “绿色”),
-    Yellow(3, “黄色”),
-    Pink(4, “粉红色”);</p>
+    Red(1, &quot;红色&quot;),
+    Green(2, &quot;绿色&quot;),
+    Yellow(3, &quot;黄色&quot;),
+    Pink(4, &quot;粉红色&quot;);
 
-<pre><code>private final int id;
-private final String description;
+    private final int id;
+    private final String description;
 
 
-// 根据id值得到对应的description
-public static String getDescription(int id){
-    for(Color item : Color.values()){
-        if(item.getId() == id){
-            return item.getDescription();
+    // 根据id值得到对应的description
+    public static String getDescription(int id){
+        for(Color item : Color.values()){
+            if(item.getId() == id){
+                return item.getDescription();
+            }
+        }
+        return null;
+    }
+    // 根据id值得到对应的枚举实例
+    public static Color getColor(int id){
+        for(Color item : Color.values()){
+            if(item.getId() == id){
+                return item;
+            }
+        }
+        return null;
+    }
+    // 根据id值得到对应的枚举实例
+    public static Color valueOf(int id){
+        switch (id){
+            case 1:
+                return Color.Red;
+            case 2:
+                return Color.Green;
+            case 3:
+                return Color.Yellow;
+            case 4:
+                return Color.Pink;
+            default:
+                return  null;
         }
     }
-    return null;
-}
-// 根据id值得到对应的枚举实例
-public static Color getColor(int id){
-    for(Color item : Color.values()){
-        if(item.getId() == id){
-            return item;
-        }
+
+    //覆盖方法
+    @Override
+    public String toString() {
+        return this.id+&quot;_&quot; + this.description;
     }
-    return null;
-}
-// 根据id值得到对应的枚举实例
-public static Color valueOf(int id){
-    switch (id){
-        case 1:
-            return Color.Red;
-        case 2:
-            return Color.Green;
-        case 3:
-            return Color.Yellow;
-        case 4:
-            return Color.Pink;
-        default:
-            return  null;
+
+    Color(int id, String description) {
+        this.id = id;
+        this.description = description;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    // 枚举类里面可以添加main方法
+    public static void main(String[] args){
+        int id = 2;
+        Color c = Color.getColor(2);
+        System.out.println(c);
     }
 }
-
-//覆盖方法
-@Override
-public String toString() {
-    return this.id+"_" + this.description;
-}
-
-Color(int id, String description) {
-    this.id = id;
-    this.description = description;
-}
-
-public int getId() {
-    return id;
-}
-
-public String getDescription() {
-    return description;
-}
-
-// 枚举类里面可以添加main方法
-public static void main(String[] args){
-    int id = 2;
-    Color c = Color.getColor(2);
-    System.out.println(c);
-} } ```
-</code></pre>
-
+</code></pre></div>
 <p><strong>重点</strong></p>
 
 <ul>
-  <li>定义枚举类时，枚举实例必须放在最前面，并且已<code>;</code>分号隔开。</li>
-  <li>枚举实例<code>Red(1, "红色")</code>，是根据枚举类的定义得来的。（枚举类有id, description两个成员变量）</li>
-  <li>这种枚举类主要用在数据库的状态字段中。</li>
+<li>定义枚举类时，枚举实例必须放在最前面，并且已<code>;</code>分号隔开。</li>
+<li>枚举实例<code>Red(1, &quot;红色&quot;)</code>，是根据枚举类的定义得来的。（枚举类有id, description两个成员变量）</li>
+<li>这种枚举类主要用在数据库的状态字段中。</li>
 </ul>
 
 

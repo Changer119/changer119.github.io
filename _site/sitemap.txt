@@ -8,6 +8,9 @@ http://changer119.github.io/rss.xml
 http://changer119.github.io/sitemap.txt
 http://changer119.github.io/tags.html
 
+http://changer119.github.io/%E7%A0%94%E7%A3%A8%E6%8A%80%E6%9C%AF/2015/08/16/Spring%E5%8A%9F%E8%83%BD%E6%A8%A1%E5%9D%97%E5%85%A5%E9%97%A8
+http://changer119.github.io/%E7%A0%94%E7%A3%A8%E6%8A%80%E6%9C%AF/2015/08/15/Mac%E4%B8%8B%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4
+http://changer119.github.io/%E7%A0%94%E7%A3%A8%E6%8A%80%E6%9C%AF/2015/08/11/Spring&MyBatis%E6%95%B4%E5%90%88
 http://changer119.github.io/%E7%A0%94%E7%A3%A8%E6%8A%80%E6%9C%AF/2015/08/10/Nginx%E5%85%A5%E9%97%A8
 http://changer119.github.io/%E7%A0%94%E7%A3%A8%E6%8A%80%E6%9C%AF/2015/07/29/Intellij%E8%BF%9C%E7%A8%8B%E8%B0%83%E8%AF%95Tomcat%E4%B8%AD%E7%9A%84%E5%BA%94%E7%94%A8
 http://changer119.github.io/%E7%A0%94%E7%A3%A8%E6%8A%80%E6%9C%AF/2015/07/25/Spring%E4%B8%8A%E6%89%8B

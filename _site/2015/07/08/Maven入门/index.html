@@ -110,82 +110,62 @@
 <section>
   <h1>maven入门</h1>
 
-  <h2 id="maven">maven主要命令</h2>
+  <h2>maven主要命令</h2>
 
-<h3 id="test">安装但不运行test代码</h3>
-<p><code>
-$ mvn clean install -Dmaven.test.skip=true
-</code></p>
+<h3>安装但不运行test代码</h3>
+<div class="highlight"><pre><code class="language-text" data-lang="text">$ mvn clean install -Dmaven.test.skip=true
+</code></pre></div>
+<h3>指定profile安装</h3>
+<div class="highlight"><pre><code class="language-text" data-lang="text">$ mvn clean install -Pint   # 给测试发的版本
+</code></pre></div><div class="highlight"><pre><code class="language-text" data-lang="text">$ mvn clean install -Pdev   # 给开发发的版本
+</code></pre></div>
+<h3>指定profile，不运行test（合并）</h3>
+<div class="highlight"><pre><code class="language-text" data-lang="text">$ mvn clean install -Pint -Dmaven.test.skip=true
+</code></pre></div>
+<h2>maven聚合</h2>
 
-<h3 id="profile">指定profile安装</h3>
-<p><code>
-$ mvn clean install -Pint	# 给测试发的版本
-</code></p>
-
-<p><code>
-$ mvn clean install -Pdev	# 给开发发的版本
-</code></p>
-
-<h3 id="profiletest">指定profile，不运行test（合并）</h3>
-<p><code>
-$ mvn clean install -Pint -Dmaven.test.skip=true
-</code></p>
-
-<h2 id="maven-1">maven聚合</h2>
 <p>假设有projectA，它里面聚合了projectB、projectC两个模块，projectA的pom.xml中的<code>&lt;packaging&gt;</code>属性值必须为pom。</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">&lt;packaging&gt;pom&lt;/packaging&gt;
+</code></pre></div>
+<h1>Maven参数配置</h1>
 
-<p>```</p>
-<packaging>pom</packaging>
-
-<p>```</p>
-
-<h1 id="maven-2">Maven参数配置</h1>
-
-<h2 id="packaging-">packaging 打包类型</h2>
+<h2>packaging 打包类型</h2>
 
 <p>任何一个maven工程，对应有一个pom.xml文件。这个pom.xml文件通过<code>&lt;packaging&gt;xxx&lt;/packaging&gt;</code>来决定该工程打包的类型（打成jar包？war包？）。</p>
 
 <ul>
-  <li>不填时（默认），表示打成jar包。</li>
-  <li>war，表示打成war包。</li>
-  <li>pom，表示这个工程不打包，它是其它工程的父工程。</li>
+<li>不填时（默认），表示打成jar包。</li>
+<li>war，表示打成war包。</li>
+<li>pom，表示这个工程不打包，它是其它工程的父工程。</li>
 </ul>
 
-<h1 id="nexus">Nexus相关</h1>
+<h1>Nexus相关</h1>
 
 <p>Nexus安装之后，会自动配置下面这几个仓库。如图：</p>
 
 <p><strong>图片</strong></p>
 
-<table>
-  <tbody>
-    <tr>
-      <td>这里面的仓库主要有三种类型： <code>hosted</code></td>
-      <td><code>proxy</code></td>
-      <td><code>group</code></td>
-    </tr>
-  </tbody>
-</table>
+<p>这里面的仓库主要有三种类型： <code>hosted</code>|<code>proxy</code>|<code>group</code></p>
 
 <p><strong>hosted</strong>: 主要与公司内部打交道。例如用户发布包（<code>mvn deploy</code>）就会将包上传到<code>hosted</code>类别的仓库中。</p>
 
 <ul>
-  <li>Releases仓库：当工程pom的version为x.x.x-Release时，用户发布后会将包上传到该仓库。</li>
-  <li>Snapshots仓库：与上逻辑同。</li>
-  <li>3rd part仓库：如果有些依赖包在maven的中央仓库找不到，就需要到该依赖包的官网下载，让后将依赖包上传到该仓库中。用户下次添加依赖时，会直接到该仓库获取。</li>
+<li>Releases仓库：当工程pom的version为x.x.x-Release时，用户发布后会将包上传到该仓库。</li>
+<li>Snapshots仓库：与上逻辑同。</li>
+<li>3rd part仓库：如果有些依赖包在maven的中央仓库找不到，就需要到该依赖包的官网下载，让后将依赖包上传到该仓库中。用户下次添加依赖时，会直接到该仓库获取。</li>
 </ul>
 
 <p><strong>proxy</strong>: 主要与外网打交道。</p>
 
 <ul>
-  <li>Centeral仓库：从maven中央仓库下载的包都放在该仓库。</li>
-  <li>Apache Snapshots仓库：放从apache下载的包。</li>
-  <li>Codehause Snapshots仓库：放从codehause下载的包。</li>
+<li>Centeral仓库：从maven中央仓库下载的包都放在该仓库。</li>
+<li>Apache Snapshots仓库：放从apache下载的包。</li>
+<li>Codehause Snapshots仓库：放从codehause下载的包。</li>
 </ul>
 
 <p><strong>设置mirror后，工程只会访问镜像，如果程序访问不了镜像，也不会去访问中央工厂回到家后，无法访问mirror时，就需要注释mirror，程序才会去中央工厂下载</strong></p>
 
-<h2 id="mvn-deploy">发布（mvn deploy）</h2>
+<h2>发布（mvn deploy）</h2>
 
 <p>要将包发布到私服上，需要先在pom中设置<code>&lt;distributionManagement&gt;</code>和<code>&lt;server&gt;</code></p>
 
@@ -193,30 +173,23 @@ $ mvn clean install -Pint -Dmaven.test.skip=true
 
 <p><strong>pic2</strong></p>
 
-<h2 id="maven-3">Maven的生命周期</h2>
+<h2>Maven的生命周期</h2>
+
 <p><strong>有3套生命周期：clean的生命周期、compile的生命周期、site的生命周期</strong></p>
 
 <p>下图列出了执行mvn clean和mvn install需要完成的步骤。</p>
 
-<p><img src="../_images/QQ20150711-2@2x.png" alt="图片说明" /></p>
+<p><img src="../_images/QQ20150711-2@2x.png" alt="图片说明"></p>
 
-<p><img src="../_images/QQ20150711-3@2x.png" alt="图片说明" /></p>
+<p><img src="../_images/QQ20150711-3@2x.png" alt="图片说明"></p>
 
-<h2 id="section">插件的配置</h2>
+<h2>插件的配置</h2>
 
 <p>表示在执行完validate之后，就会执行jar和test-jar操作。</p>
 
-<p><img src="../_images/QQ20150711-4@2x.png" alt="图片说明" /></p>
+<p><img src="../_images/QQ20150711-4@2x.png" alt="图片说明"></p>
 
-<table>
-  <tbody>
-    <tr>
-      <td>**在父级pom中，有<code>&lt;pluginsManagement&gt;</code></td>
-      <td><code>&lt;dependencyManagement&gt;</code>标签，在它里面定义的内容不能够被子模块直接继承，需要在子模块中手动添加groupid和archtypeId才行**</td>
-    </tr>
-  </tbody>
-</table>
-
+<p><strong>在父级pom中，有<code>&lt;pluginsManagement&gt;</code>|<code>&lt;dependencyManagement&gt;</code>标签，在它里面定义的内容不能够被子模块直接继承，需要在子模块中手动添加groupid和archtypeId才行</strong></p>
 
 
   
