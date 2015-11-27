@@ -3,6 +3,18 @@ layout: post
 title: Springboot学习
 ---
 
+## springboot应用基本注解
+
+在做springboot应用时，一般会加上3个注解。
+
+```
+@
+public class MainApp{
+
+}
+```
+
+
 ## springboot打包的jar文件远程调试
 
 ```
