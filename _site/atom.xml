@@ -4,7 +4,7 @@
  <title>烂笔头</title>
  <link href="http://changer119.github.io/atom.xml" rel="self"/>
  <link href="http://changer119.github.io"/>
- <updated>2015-09-22T11:11:21+08:00</updated>
+ <updated>2018-12-15T17:11:57+08:00</updated>
  <id>http://changer119.github.io</id>
  <author>
    <name>fcjiang</name>
@@ -13,27 +13,830 @@
 
  
  <entry>
+   <title>设计支持高并发的API</title>
+   <link href="http://changer119.github.io/2016/01/04/%E8%AE%BE%E8%AE%A1%E6%94%AF%E6%8C%81%E9%AB%98%E5%B9%B6%E5%8F%91%E7%9A%84API"/>
+   <updated>2016-01-04T00:00:00+08:00</updated>
+   <id>http://changer119.github.io/2016/01/04/设计支持高并发的API</id>
+   <content type="html">&lt;h3 id=&quot;相关导读&quot;&gt;相关导读&lt;/h3&gt;
+
+&lt;p&gt;&lt;a href=&quot;http://www.iteye.com/problems/101314&quot;&gt;这里&lt;/a&gt; 有一个问答，请求如何设计支持高并发的restful api？&lt;/p&gt;
+
+&lt;p&gt;看完之后，主要结论如下：&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;ol&gt;
+    &lt;li&gt;关于rest，它仅仅是一种风格，跟是否支持高并发没有任何关系。&lt;/li&gt;
+    &lt;li&gt;高并发时，需要减少服务器的请求压力，可以&lt;strong&gt;使用nginx类似的负载均衡框架&lt;/strong&gt;。&lt;/li&gt;
+    &lt;li&gt;高并发时，数据库访问压力大，可以&lt;strong&gt;多部署几台，主从分离&lt;/strong&gt;。&lt;/li&gt;
+    &lt;li&gt;大多情况下，&lt;strong&gt;请考虑缓存框架&lt;/strong&gt;，能为你减少很多压力。&lt;/li&gt;
+    &lt;li&gt;高并发写代码，只要你清楚了基本原理，其实现在来说并不是很难。所谓并发出现的问题主要还是怕在写入的时候出现数据错误（混乱），其实读取的情况，就是怕效率和死锁等问题，数据不会出错。主从分离后，一般情况下读数据也不会加锁，对数据的实时性，也不会要求那么高了。如果大量的写入，这考虑的就多了.如果非要说注意点什么，得注意你共享变量的读写控制，也就是说带状态的对象的操作得注意点，其他的一般都是数据库层面的的了.&lt;/li&gt;
+  &lt;/ol&gt;
+&lt;/blockquote&gt;
+
+</content>
+ </entry>
+ 
+ <entry>
+   <title>HttpClient使用</title>
+   <link href="http://changer119.github.io/2015/12/31/HttpClient%E4%BD%BF%E7%94%A8"/>
+   <updated>2015-12-31T00:00:00+08:00</updated>
+   <id>http://changer119.github.io/2015/12/31/HttpClient使用</id>
+   <content type="html">&lt;h3 id=&quot;http几个timeout的区别&quot;&gt;http几个TimeOut的区别&lt;/h3&gt;
+
+&lt;h4 id=&quot;连接超时connecttimeout&quot;&gt;连接超时(ConnectTimeOut):&lt;/h4&gt;
+&lt;p&gt;client去连接server，这是一个tcp过程，存在3次握手。client的&lt;code class=&quot;highlighter-rouge&quot;&gt;SYN&lt;/code&gt;已经给到server，但server的&lt;code class=&quot;highlighter-rouge&quot;&gt;SYN+ACK&lt;/code&gt;没有给到client。&lt;/p&gt;
+
+&lt;p&gt;建立连接的3次握手如下图：&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://changer119.qiniudn.com/QQ20151231-0@2x.png&quot; alt=&quot;tcp建立连接 3次握手&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;如果client去访问一个不存在的url，是否会抛出ConnectTimeOut？&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;我在MacPro的机器上尝试了一下，client会立马报Connectioin Refused错误。&lt;/p&gt;
+
+&lt;h4 id=&quot;请求超时sockettimeout&quot;&gt;请求超时(SocketTimeOut):&lt;/h4&gt;
+
+&lt;p&gt;client已经与server成功建立连接，并且server在做逻辑处理，但这个处理时间过程，还没来得及返回client结果，client端就报SocketTimeOut。&lt;/p&gt;
+
+&lt;p&gt;这个可以在server端通过sleep的方式模拟出来。&lt;/p&gt;
+
+&lt;h3 id=&quot;重试机制&quot;&gt;重试机制&lt;/h3&gt;
+
+&lt;p&gt;HttpClient提供了应用层面的重试机制。参照下面的代码。&lt;/p&gt;
+
+&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nd&quot;&gt;@Test&lt;/span&gt;
+&lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;testRetry&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;throws&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;IOException&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;String&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;orgTxNo&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;EC7FF7817B894AD19C7C6A3CE060A7AF&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;String&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;url&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;host&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;/trusteepay/txstatusquery?orgTxNo=&quot;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;orgTxNo&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+    
+    &lt;span class=&quot;c1&quot;&gt;// 实现HttpRequestRetryHandler接口&lt;/span&gt;
+    &lt;span class=&quot;c1&quot;&gt;// 只有httpClient.execute(method)抛出异常时，才会进入myRetryHandler。&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;HttpRequestRetryHandler&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;myRetryHandler&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;HttpRequestRetryHandler&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;nd&quot;&gt;@Override&lt;/span&gt;
+        &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;boolean&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;retryRequest&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;IOException&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;e&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;HttpContext&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;httpContext&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+            &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;i&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;5&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+                &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;false&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+            &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+            &lt;span class=&quot;cm&quot;&gt;/*if (e instanceof InterruptedIOException) {
+                return false;
+            }*/&lt;/span&gt;
+            &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;e&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;instanceof&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;UnknownHostException&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+                &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;false&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+            &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+            &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;e&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;instanceof&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ConnectTimeoutException&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+                &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;false&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+            &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+            &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;e&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;instanceof&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;SSLException&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+                &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;false&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+            &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+            &lt;span class=&quot;n&quot;&gt;HttpClientContext&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;clientContext&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;HttpClientContext&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;adapt&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;httpContext&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+            &lt;span class=&quot;n&quot;&gt;HttpRequest&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;request&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;clientContext&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;getRequest&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+            &lt;span class=&quot;kt&quot;&gt;boolean&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;idempotent&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;!(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;request&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;instanceof&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;HttpEntityEnclosingRequest&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+            &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;idempotent&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+                &lt;span class=&quot;c1&quot;&gt;// Retry if the request is considered idempotent&lt;/span&gt;
+                &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;true&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+            &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+            &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;false&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+        &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;};&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;HttpClient&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;httpClient&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;HttpClients&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;custom&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt;
+            &lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;setRetryHandler&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;myRetryHandler&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+            &lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;build&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;HttpGet&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;httpGet&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;HttpGet&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;url&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;RequestConfig&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;config&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;RequestConfig&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;custom&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt;
+            &lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;setConnectTimeout&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;2000&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;    &lt;span class=&quot;c1&quot;&gt;//连接超时 2s&lt;/span&gt;
+            &lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;setSocketTimeout&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;5000&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;    &lt;span class=&quot;c1&quot;&gt;//请求超时 10s&lt;/span&gt;
+            &lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;build&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;httpGet&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;setConfig&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;config&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;try&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;HttpResponse&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;httpResponse&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;httpClient&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;execute&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;httpGet&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;System&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;out&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;println&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;statusLine: &quot;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;httpResponse&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;getStatusLine&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;().&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;toString&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;());&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;HttpEntity&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;httpEntity&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;httpResponse&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;getEntity&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;System&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;out&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;println&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;entity: &quot;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;EntityUtils&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;toString&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;httpEntity&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;));&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;catch&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Exception&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;e&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;){&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;System&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;out&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;println&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;产生异常========&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;e&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;printStackTrace&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;e&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;instanceof&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;IOException&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+            &lt;span class=&quot;c1&quot;&gt;// 记得抛出异常，或者不进行异常捕获&lt;/span&gt;
+            &lt;span class=&quot;k&quot;&gt;throw&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;IOException&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;e&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;finally&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// 这里的finally会在重试5次之后执行，5次重试用的同一个httpGet连接&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;System&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;out&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;println&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;MessageFormat&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;format&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;释放连接 hashCode={0}&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;httpGet&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;hashCode&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()));&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;httpGet&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;releaseConnection&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+</content>
+ </entry>
+ 
+ <entry>
+   <title>忆起老爸</title>
+   <link href="http://changer119.github.io/2015/12/25/%E5%BF%86%E7%88%B6%E4%BA%B2"/>
+   <updated>2015-12-25T00:00:00+08:00</updated>
+   <id>http://changer119.github.io/2015/12/25/忆父亲</id>
+   <content type="html">&lt;p&gt;到年底了，我总会想起去年的事情，想起老爸去年的遭遇。有时候我想写点什么，但嫌麻烦而落下了。但不写的话，现在越发觉得记性差了，怕再过一段时间，自己就忘记了老爸留给我的最后的印记。我想把陪老爸走过来的那最后一段经历，写下来，以供回忆和缅怀。&lt;/p&gt;
+
+&lt;p&gt;今天是12月25日，圣诞节。去年的今天，我已经在医院陪伴老爸了。去年平安夜那天，我决定要回衡阳，因为老妈已经陪着老爸来到医院检查，并住院了一两天了。老爸的检查结果显示，他的肺部有个很大的肿块。这个检查结果给了我们家致命一击，我知道老爸这次的病情不乐观，我要回去看看他。&lt;/p&gt;
+
+&lt;p&gt;老爸是在衡阳中心医院住院，在呼吸内科病区。现在我已经记不得是在几楼，哪个房间了。但我知道它住的是朝南的病房，里面一共住了4个病友。一个市区的快70的老头，他看起来只有60的样子，人高马大的，他主要负责活跃病房的气氛。另一个是靠近厕所的60多岁的老头，他是衡南的，也有2个儿子，老头也是勤劳老实的农民。还有一个是衡阳的退休职工，生活有点不能自理的那种，他的子女也很少过来陪他，最多就送2餐饭。老爸在这个病房的时候，心态还不错，几个病友之间也经常聊聊天。&lt;/p&gt;
+
+&lt;p&gt;这是老爸第一次住院，期间做了很多检查，出院前2-3天，我们还陪老爸去做了呼吸镜检查。&lt;/p&gt;
+
+&lt;p&gt;还是补充到“2014陪护老爸”中去吧。&lt;/p&gt;
+
+</content>
+ </entry>
+ 
+ <entry>
+   <title>kafka配置</title>
+   <link href="http://changer119.github.io/%E7%A0%94%E7%A3%A8%E6%8A%80%E6%9C%AF/2015/12/01/kafka%E9%85%8D%E7%BD%AE"/>
+   <updated>2015-12-01T00:00:00+08:00</updated>
+   <id>http://changer119.github.io/%E7%A0%94%E7%A3%A8%E6%8A%80%E6%9C%AF/2015/12/01/kafka配置</id>
+   <content type="html">&lt;h3 id=&quot;zookeeperkafka默认端口&quot;&gt;zookeeper&amp;amp;&amp;amp;kafka默认端口&lt;/h3&gt;
+
+&lt;p&gt;zookeeper的默认端口 &lt;code class=&quot;highlighter-rouge&quot;&gt;2181&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;kafka服务端默认端口 &lt;code class=&quot;highlighter-rouge&quot;&gt;9092&lt;/code&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;启动zookeeper&quot;&gt;启动zookeeper&lt;/h3&gt;
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;// 在zookeeper的安装目录下启动zookeeper
+bin/zkServer.sh start
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h3 id=&quot;启动kafka&quot;&gt;启动kafka&lt;/h3&gt;
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;// 在kafka的安装目录启动kafka
+bin/kafka-server-start.sh config/server.properties  
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h3 id=&quot;kafka常用操作&quot;&gt;kafka常用操作&lt;/h3&gt;
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;// 创建消息topic fcjiangTest
+bin/kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor 1 --partitions 1 --topic fcjiangTest
+
+// 查看已有的topic
+bin/kafka-topics.sh --list --zookeeper localhost:2181
+
+// 打开kafka的生产者模拟界面
+bin/kafka-console-producer.sh --broker-list localhost:9092 --topic xxxx
+
+// 指定topic的消费者界面
+bin/kafka-console-consumer.sh --zookeeper localhost:2181 --topic fcjiangTest --from-beginning
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+</content>
+ </entry>
+ 
+ <entry>
+   <title>Git上手</title>
+   <link href="http://changer119.github.io/2015/11/23/%E7%9F%A5%E8%AF%86%E7%82%B9%E7%B4%AF%E8%AE%A1"/>
+   <updated>2015-11-23T00:00:00+08:00</updated>
+   <id>http://changer119.github.io/2015/11/23/知识点累计</id>
+   <content type="html">&lt;h3 id=&quot;同一个方法里loanobjectcritear不能用2次&quot;&gt;同一个方法里LoanObjectCritear不能用2次&lt;/h3&gt;
+
+</content>
+ </entry>
+ 
+ <entry>
+   <title>Python</title>
+   <link href="http://changer119.github.io/2015/11/16/Python%E5%AD%A6%E4%B9%A0"/>
+   <updated>2015-11-16T00:00:00+08:00</updated>
+   <id>http://changer119.github.io/2015/11/16/Python学习</id>
+   <content type="html">&lt;h3 id=&quot;list和tuple&quot;&gt;list和tuple&lt;/h3&gt;
+
+&lt;p&gt;tuple和list非常类似，但是tuple一旦初始化就不能修改。&lt;/p&gt;
+
+&lt;p&gt;不可变的tuple有什么意义？因为tuple不可变，所以代码更安全。如果可能，能用tuple代替list就尽量用tuple。&lt;/p&gt;
+
+&lt;p&gt;tuple是一种特殊的list。”ABC”也是一种list。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;list和tuple可使用切片（slice）功能&lt;/strong&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;迭代&quot;&gt;迭代&lt;/h3&gt;
+
+&lt;p&gt;默认情况下，dict迭代的是key。如果要迭代value，可以用&lt;code class=&quot;highlighter-rouge&quot;&gt;for value in d.values()&lt;/code&gt;，如果要同时迭代key和value，可以用&lt;code class=&quot;highlighter-rouge&quot;&gt;for k, v in d.items()&lt;/code&gt;。&lt;/p&gt;
+
+</content>
+ </entry>
+ 
+ <entry>
+   <title>Java静态类、变量、方法</title>
+   <link href="http://changer119.github.io/2015/11/12/Java%E9%9D%99%E6%80%81%E7%B1%BB-%E5%8F%98%E9%87%8F-%E6%96%B9%E6%B3%95"/>
+   <updated>2015-11-12T00:00:00+08:00</updated>
+   <id>http://changer119.github.io/2015/11/12/Java静态类、变量、方法</id>
+   <content type="html">&lt;p&gt;先来一题：&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;public class Demo {
+    static int i;
+    int j;
+
+    public static void main(String[] args) {
+        Demo obj1 = new Demo();
+        obj1.i = 10;
+        obj1.j = 20;
+       
+        Demo obj2 = new Demo();
+       
+        System.out.println(&quot;obj1.i=&quot; + obj1.i + &quot;, obj1.j=&quot; + obj1.j);
+        System.out.println(&quot;obj2.i=&quot; + obj2.i + &quot;, obj2.j=&quot; + obj2.j);
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;运行结果：&lt;/p&gt;
+
+&lt;p&gt;obj1.i=10, obj1.j=20&lt;/p&gt;
+
+&lt;p&gt;obj2.i=10, obj2.j=0&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;注意：静态变量虽然也可以通过对象来访问，但是不被提倡，编译器也会产生警告&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;类变量(class variables)用关键字 static 修饰，&lt;strong&gt;在类加载的时候，分配类变量的内存&lt;/strong&gt;，以后再生成类的实例对象时，将共享这块内存（类变量），任何一个对象对类变量的修改，都会影响其它对象。外部有两种访问方式：通过对象来访问或通过类名来访问。&lt;/p&gt;
+</content>
+ </entry>
+ 
+ <entry>
+   <title>Java类初始化过程</title>
+   <link href="http://changer119.github.io/2015/11/12/Java%E7%B1%BB%E5%88%9D%E5%A7%8B%E5%8C%96%E8%BF%87%E7%A8%8B"/>
+   <updated>2015-11-12T00:00:00+08:00</updated>
+   <id>http://changer119.github.io/2015/11/12/Java类初始化过程</id>
+   <content type="html">&lt;h3 id=&quot;一个类初始化的3个步骤&quot;&gt;一个类初始化的3个步骤&lt;/h3&gt;
+
+&lt;h4 id=&quot;step1-类加载&quot;&gt;step1 类加载&lt;/h4&gt;
+
+&lt;p&gt;加载（Loading），由类加载器执行，查找字节码，并创建一个Class对象（只是创建）；&lt;/p&gt;
+
+&lt;h4 id=&quot;step2-链接&quot;&gt;step2 链接&lt;/h4&gt;
+
+&lt;p&gt;链接（Linking），验证字节码，为静态域分配存储空间（只是分配，并不初始化该存储空间），解析该类创建所需要的对其它类的应用；&lt;/p&gt;
+
+&lt;h4 id=&quot;step3-初始化&quot;&gt;step3 初始化&lt;/h4&gt;
+
+&lt;p&gt;初始化（Initialization），&lt;strong&gt;首先执行静态初始化块static{}，初始化静态变量，执行静态方法（如构造方法）&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;h3 id=&quot;触发类初始化的6种场景&quot;&gt;触发类初始化的6种场景&lt;/h3&gt;
+
+&lt;p&gt;根据java虚拟机规范，所有java虚拟机必须在每个类或接口被java程序&lt;strong&gt;首次主动使用时才初始化类&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;p&gt;主动使用有以下6种：&lt;/p&gt;
+
+&lt;p&gt;1)	创建类的实例&lt;/p&gt;
+
+&lt;p&gt;2)	访问某个类或者接口的静态变量，或者对该静态变量赋值（如果访问静态编译时常量(即编译时可以确定值的常量)不会导致类的初始化）&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;public class Person(){
+	// max就是编译时常量（必须同时满足static &amp;amp;&amp;amp; final &amp;amp;&amp;amp; 常量）
+	// 可以直接使用Person.maxAge，而不触发类初始化
+	private static final int maxAge = 120;
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;3)	调用类的静态方法&lt;/p&gt;
+
+&lt;p&gt;4)	反射（Class.forName(xxx.xxx.xxx)）&lt;/p&gt;
+
+&lt;p&gt;5)	初始化一个类的子类（相当于对父类的主动使用），不过直接通过子类引用父类元素，不会引起子类的初始化（参见示例6）&lt;/p&gt;
+
+&lt;p&gt;6)	Java虚拟机被标明为启动类的类（包含main方法的）&lt;/p&gt;
+
+&lt;p&gt;类与接口的初始化不同，如果一个类被初始化，则其父类或父接口也会被初始化，但如果一个接口初始化，则不会引起其父接口的初始化。&lt;/p&gt;
+</content>
+ </entry>
+ 
+ <entry>
+   <title>JSON序列化</title>
+   <link href="http://changer119.github.io/2015/11/10/JSON%E5%BA%8F%E5%88%97%E5%8C%96"/>
+   <updated>2015-11-10T00:00:00+08:00</updated>
+   <id>http://changer119.github.io/2015/11/10/JSON序列化</id>
+   <content type="html">&lt;h3 id=&quot;gson方案&quot;&gt;GSON方案&lt;/h3&gt;
+
+&lt;h4 id=&quot;gson反序列化成list&quot;&gt;gson反序列化成List&lt;/h4&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;// 将下面的String转换成List对象
+[ {
+  &quot;name&quot; : &quot;zhangsan&quot;,
+  &quot;age&quot; : 20
+} ,{
+  &quot;name&quot; : &quot;lisi&quot;,
+  &quot;age&quot; : 100
+}]
+
+// 反序列化的代码
+List&amp;lt;Person&amp;gt; persons = new Gson().from(jsonStr, new TypeToken&amp;lt;List&amp;lt;Person&amp;gt;&amp;gt;(){}.getType());
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h3 id=&quot;gson序列化时会将转换为u003d&quot;&gt;gson序列化时，会将=转换为\u003d&lt;/h3&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;// 有一个字符串
+String str1 = &quot;hello==&quot;;
+// 序列化后，jsonStr1会将=转换成\u003d
+String jsonStr1 = new Gson().toJson(str1);
+
+
+// 不让它自动转换成\u003d
+GsonBuilder gsonBuilder = new GsonBuilder();
+gsonBuilder.disableHtmlEscaping();
+Gson gson = gsonBuilder.create();
+String jsonStr2 = gson.toJson(str));
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+</content>
+ </entry>
+ 
+ <entry>
+   <title>xml与bean的转换</title>
+   <link href="http://changer119.github.io/2015/11/04/xml%E4%B8%8Ebean%E7%9A%84%E8%BD%AC%E6%8D%A2"/>
+   <updated>2015-11-04T00:00:00+08:00</updated>
+   <id>http://changer119.github.io/2015/11/04/xml与bean的转换</id>
+   <content type="html">&lt;p&gt;以下的方法都是借助于Jaxb（&lt;code class=&quot;highlighter-rouge&quot;&gt;Java Architecture for XML Binding&lt;/code&gt;）来实现的。Jaxb是一项行业标准，它已经被集成到了JDK1.6中。&lt;/p&gt;
+
+&lt;h2 id=&quot;jaxb常见的接口&quot;&gt;Jaxb常见的接口&lt;/h2&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;JAXBContext类&lt;/code&gt;: 是应用的入口，用于管理XML/Java绑定信息。&lt;/p&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;Marshaller接口&lt;/code&gt;: 将Java对象序列化为XML数据。&lt;/p&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;Unmarshaller接口&lt;/code&gt;: 将XML数据反序列化为Java对象。&lt;/p&gt;
+
+&lt;hr /&gt;
+
+&lt;h3 id=&quot;beanxml&quot;&gt;Bean–&amp;gt;Xml&lt;/h3&gt;
+
+&lt;p&gt;有一个Person类，通过注解的方式，标注哪些字段需要转换为xml的标签。&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;@XmlRootElement(name = &quot;input&quot;)  // xml的根标签为&amp;lt;input&amp;gt;
+@XmlAccessorType(XmlAccessType.FIELD)  // 读取属性作为标签
+public class Person {
+    @XmlElement
+    private String name;
+    @XmlElement
+    private int age;
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public int getAge() {
+        return age;
+    }
+
+    public void setAge(int age) {
+        this.age = age;
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;需要一个静态方法，负责将bean转换为xml。&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;public static String bean2xml(Object obj){
+    try
+    {
+        StringWriter writer = new StringWriter();
+        JAXBContext context = JAXBContext.newInstance(obj.getClass());
+        Marshaller marshaller = context.createMarshaller();
+
+        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, false); // 格式化输出
+        marshaller.setProperty(Marshaller.JAXB_ENCODING, &quot;UTF-8&quot;);// 编码格式,默认为utf-8
+        marshaller.setProperty(Marshaller.JAXB_FRAGMENT, true);// 是否省略xml头信息
+        marshaller.marshal(obj,writer);
+
+        return new String(writer.getBuffer());
+    }
+    catch (JAXBException e) {
+        throw new MalformedMessageException(e);
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h3 id=&quot;xmlbean&quot;&gt;Xml–&amp;gt;Bean&lt;/h3&gt;
+
+&lt;p&gt;提供一个泛型方法，该方法能够根据提供的class类型，将xml转换为bean对象。&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;public static &amp;lt;T&amp;gt; T xml2bean(String xmlStr, Class&amp;lt;T&amp;gt; classz){
+    try
+    {
+        JAXBContext context = JAXBContext.newInstance(classz);
+        Unmarshaller unmarshaller = context.createUnmarshaller();
+
+        T t = (T) unmarshaller.unmarshal(new StringReader(xmlStr));
+
+        return t;
+    }
+    catch (JAXBException e) {
+        throw new MalformedMessageException(e);
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;hr /&gt;
+&lt;p&gt;&lt;strong&gt;上面的Person是一个简单的bean对象。如果有一个类&lt;code class=&quot;highlighter-rouge&quot;&gt;Student&lt;/code&gt;继承了Person，它又该怎么样转化为xml？怎么样从xml转化为student对象呢？&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;Student类的定义如下，不需要修改头部的注解内容。&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;@XmlRootElement(name = &quot;input&quot;)
+@XmlAccessorType(XmlAccessType.FIELD)
+public class Student extends Person {
+    @XmlElement
+    private String school;
+
+    public String getSchool() {
+        return school;
+    }
+
+    public void setSchool(String school) {
+        this.school = school;
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;bean–&amp;gt;xml时，只需调用上面的bean2xml()方法即可。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;xml–&amp;gt;bean&lt;/strong&gt;时，调用上面的xml2bean()方法就会出错。要解决这个问题，只需要在创建JAXBContext对象时，同时指定父类、子类的class即可。&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;// 父类在前，子类在后
+JAXBContext context = JAXBContext.newInstance(Person.class, Student.class);
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;当然，也可以重载一下上面的xml2bean()方法。&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;public static &amp;lt;K, T&amp;gt; T xml2bean(String xmlStr, Class&amp;lt;K&amp;gt; classk, Class&amp;lt;T&amp;gt; classt){
+    try
+    {
+        JAXBContext context = JAXBContext.newInstance(classk, classt);
+        Unmarshaller unmarshaller = context.createUnmarshaller();
+
+        T t = (T) unmarshaller.unmarshal(new StringReader(xmlStr));
+
+        return t;
+    }
+    catch (JAXBException e) {
+        throw new MalformedMessageException(e);
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+</content>
+ </entry>
+ 
+ <entry>
+   <title>常见的maven依赖</title>
+   <link href="http://changer119.github.io/2015/11/03/%E5%B8%B8%E8%A7%81%E7%9A%84maven%E4%BE%9D%E8%B5%96"/>
+   <updated>2015-11-03T00:00:00+08:00</updated>
+   <id>http://changer119.github.io/2015/11/03/常见的maven依赖</id>
+   <content type="html">&lt;h3 id=&quot;junit-412&quot;&gt;junit 4.12&lt;/h3&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&amp;lt;dependency&amp;gt;
+	&amp;lt;groupId&amp;gt;junit&amp;lt;/groupId&amp;gt;
+	&amp;lt;artifactId&amp;gt;junit&amp;lt;/artifactId&amp;gt;
+	&amp;lt;version&amp;gt;4.12&amp;lt;/version&amp;gt;
+&amp;lt;/dependency&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h3 id=&quot;fastjson-128&quot;&gt;fastjson 1.2.8&lt;/h3&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&amp;lt;dependency&amp;gt;
+	&amp;lt;groupId&amp;gt;com.alibaba&amp;lt;/groupId&amp;gt;
+	&amp;lt;artifactId&amp;gt;fastjson&amp;lt;/artifactId&amp;gt;
+	&amp;lt;version&amp;gt;1.2.8&amp;lt;/version&amp;gt;
+&amp;lt;/dependency&amp;gt;
+
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h3 id=&quot;log4j-24&quot;&gt;log4j 2.4&lt;/h3&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&amp;lt;dependency&amp;gt;
+	&amp;lt;groupId&amp;gt;org.apache.logging.log4j&amp;lt;/groupId&amp;gt;
+	&amp;lt;artifactId&amp;gt;log4j-core&amp;lt;/artifactId&amp;gt;
+	&amp;lt;version&amp;gt;2.4.1&amp;lt;/version&amp;gt;
+&amp;lt;/dependency&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h3 id=&quot;jackson-26&quot;&gt;jackson 2.6&lt;/h3&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&amp;lt;dependency&amp;gt;
+    &amp;lt;groupId&amp;gt;com.fasterxml.jackson.core&amp;lt;/groupId&amp;gt;
+    &amp;lt;artifactId&amp;gt;jackson-databind&amp;lt;/artifactId&amp;gt;
+    &amp;lt;version&amp;gt;2.6.3&amp;lt;/version&amp;gt;
+&amp;lt;/dependency&amp;gt;
+&amp;lt;dependency&amp;gt;
+    &amp;lt;groupId&amp;gt;com.fasterxml.jackson.core&amp;lt;/groupId&amp;gt;
+    &amp;lt;artifactId&amp;gt;jackson-core&amp;lt;/artifactId&amp;gt;
+    &amp;lt;version&amp;gt;2.6.3&amp;lt;/version&amp;gt;
+&amp;lt;/dependency&amp;gt;
+&amp;lt;dependency&amp;gt;
+    &amp;lt;groupId&amp;gt;com.fasterxml.jackson.core&amp;lt;/groupId&amp;gt;
+    &amp;lt;artifactId&amp;gt;jackson-annotations&amp;lt;/artifactId&amp;gt;
+    &amp;lt;version&amp;gt;2.6.3&amp;lt;/version&amp;gt;
+&amp;lt;/dependency&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h3 id=&quot;spring-42&quot;&gt;spring 4.2&lt;/h3&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&amp;lt;!--Spring基本开发，必须包含以下6个包--&amp;gt;
+&amp;lt;dependency&amp;gt;
+    &amp;lt;groupId&amp;gt;org.springframework&amp;lt;/groupId&amp;gt;
+    &amp;lt;artifactId&amp;gt;spring-core&amp;lt;/artifactId&amp;gt;
+    &amp;lt;version&amp;gt;4.2.2.RELEASE&amp;lt;/version&amp;gt;
+&amp;lt;/dependency&amp;gt;
+&amp;lt;dependency&amp;gt;
+    &amp;lt;groupId&amp;gt;org.springframework&amp;lt;/groupId&amp;gt;
+    &amp;lt;artifactId&amp;gt;spring-context&amp;lt;/artifactId&amp;gt;
+    &amp;lt;version&amp;gt;4.2.2.RELEASE&amp;lt;/version&amp;gt;
+&amp;lt;/dependency&amp;gt;
+&amp;lt;dependency&amp;gt;
+    &amp;lt;groupId&amp;gt;org.springframework&amp;lt;/groupId&amp;gt;
+    &amp;lt;artifactId&amp;gt;spring-beans&amp;lt;/artifactId&amp;gt;
+    &amp;lt;version&amp;gt;4.2.2.RELEASE&amp;lt;/version&amp;gt;
+&amp;lt;/dependency&amp;gt;
+&amp;lt;dependency&amp;gt;
+    &amp;lt;groupId&amp;gt;org.springframework&amp;lt;/groupId&amp;gt;
+    &amp;lt;artifactId&amp;gt;spring-jdbc&amp;lt;/artifactId&amp;gt;
+    &amp;lt;version&amp;gt;4.2.2.RELEASE&amp;lt;/version&amp;gt;
+&amp;lt;/dependency&amp;gt;
+&amp;lt;dependency&amp;gt;
+    &amp;lt;groupId&amp;gt;org.springframework&amp;lt;/groupId&amp;gt;
+    &amp;lt;artifactId&amp;gt;spring-expression&amp;lt;/artifactId&amp;gt;
+    &amp;lt;version&amp;gt;4.2.2.RELEASE&amp;lt;/version&amp;gt;
+&amp;lt;/dependency&amp;gt;
+&amp;lt;dependency&amp;gt;
+    &amp;lt;groupId&amp;gt;org.springframework&amp;lt;/groupId&amp;gt;
+    &amp;lt;artifactId&amp;gt;spring-test&amp;lt;/artifactId&amp;gt;
+    &amp;lt;version&amp;gt;4.2.2.RELEASE&amp;lt;/version&amp;gt;
+&amp;lt;/dependency&amp;gt;
+
+&amp;lt;!--使用springmvc需要导入的包--&amp;gt;
+&amp;lt;dependency&amp;gt;
+	&amp;lt;groupId&amp;gt;org.springframework&amp;lt;/groupId&amp;gt;
+	&amp;lt;artifactId&amp;gt;spring-webmvc&amp;lt;/artifactId&amp;gt;
+	&amp;lt;version&amp;gt;4.2.2.RELEASE&amp;lt;/version&amp;gt;
+&amp;lt;/dependency&amp;gt;
+
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h2 id=&quot;swagger插件&quot;&gt;swagger插件&lt;/h2&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&amp;lt;dependency&amp;gt;
+    &amp;lt;groupId&amp;gt;io.springfox&amp;lt;/groupId&amp;gt;
+    &amp;lt;artifactId&amp;gt;springfox-swagger2&amp;lt;/artifactId&amp;gt;
+    &amp;lt;version&amp;gt;2.2.2&amp;lt;/version&amp;gt;
+&amp;lt;/dependency&amp;gt;
+&amp;lt;dependency&amp;gt;
+    &amp;lt;groupId&amp;gt;io.springfox&amp;lt;/groupId&amp;gt;
+    &amp;lt;artifactId&amp;gt;springfox-swagger-ui&amp;lt;/artifactId&amp;gt;
+    &amp;lt;version&amp;gt;2.2.2&amp;lt;/version&amp;gt;
+&amp;lt;/dependency&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+</content>
+ </entry>
+ 
+ <entry>
+   <title>Springboot学习</title>
+   <link href="http://changer119.github.io/2015/11/01/Springboot%E5%AD%A6%E4%B9%A0"/>
+   <updated>2015-11-01T00:00:00+08:00</updated>
+   <id>http://changer119.github.io/2015/11/01/Springboot学习</id>
+   <content type="html">&lt;h2 id=&quot;springboot应用基本注解&quot;&gt;springboot应用基本注解&lt;/h2&gt;
+
+&lt;p&gt;在做springboot应用时，一般会加上3个注解。&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;@
+public class MainApp{
+
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h2 id=&quot;springboot打包的jar文件远程调试&quot;&gt;springboot打包的jar文件远程调试&lt;/h2&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;java -Xdebug -Xrunjdwp:server=y,transport=dt_socket,address=55555,suspend=n -jar target/myproject-0.0.1-SNAPSHOT.jar
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;对于几个参数做一些说明：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;address=55555 表示服务端开启了55555的调试端口，等待IDE连接到该端口进行远程调试。这个端口与tomcat应用的端口8080是不同的。&lt;/li&gt;
+  &lt;li&gt;suspend=n/y  如果是y，启动服务端应用时，应用会停在那，知道IDE连接上后才开始执行。如果n，则启动后服务端可以正常运行，直到有IDE连接上后才会进行调试状态。&lt;/li&gt;
+&lt;/ul&gt;
+
+</content>
+ </entry>
+ 
+ <entry>
+   <title>java getResourceAsStream用法</title>
+   <link href="http://changer119.github.io/2015/10/25/java-getResourceAsStream%E7%94%A8%E6%B3%95"/>
+   <updated>2015-10-25T00:00:00+08:00</updated>
+   <id>http://changer119.github.io/2015/10/25/java getResourceAsStream用法</id>
+   <content type="html">&lt;p&gt;通过getResourceAsStream方法可以获取到配置文件。&lt;/p&gt;
+
+&lt;p&gt;主要有两种形式：&lt;/p&gt;
+
+&lt;h3 id=&quot;通过class类调用&quot;&gt;通过Class类调用&lt;/h3&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;this.getClass.getResourceAsStream(filePath)
+// 若是静态类，可以直接通过类名，如
+Person.class.getResourceAsStream(filePath)
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;&lt;strong&gt;filePath建议以“/”开头，表示从classpath目录下搜索&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;filePath不以“/”开头，则表示从Person.class文件所在目录开始搜索&lt;/p&gt;
+
+&lt;h3 id=&quot;通过classloader调用&quot;&gt;通过ClassLoader调用&lt;/h3&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;this.getClass.getClassLoader.getResourceAsStream(filePath)
+// 静态类的方式如下
+Person.class.getClassLoader.getResourceAsStream(filePath)
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;&lt;strong&gt;filePath不能以“/”开头，默认从classpath目录下搜索&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;下面给一些实例&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;第一： 要加载的文件和.class文件在同一目录下，例如：com.x.y 下有类me.class ,同时有资源文件myfile.xml 
+
+那么，应该有如下代码： 
+
+me.class.getResourceAsStream(&quot;myfile.xml&quot;); 
+
+第二：在me.class目录的子目录下，例如：com.x.y 下有类me.class ,同时在 com.x.y.file 目录下有资源文件myfile.xml 
+
+那么，应该有如下代码： 
+
+me.class.getResourceAsStream(&quot;file/myfile.xml&quot;); 
+
+第三：不在me.class目录下，也不在子目录下，例如：com.x.y 下有类me.class ,同时在 com.x.file 目录下有资源文件myfile.xml 
+
+那么，应该有如下代码： 
+
+me.class.getResourceAsStream(&quot;/com/x/file/myfile.xml&quot;); 
+
+总结一下，可能只是两种写法 
+
+第一：前面有 “   / ” 
+
+“ / ”代表了工程的根目录，例如工程名叫做myproject，“ / ”代表了myproject 
+
+me.class.getResourceAsStream(&quot;/com/x/file/myfile.xml&quot;); 
+
+第二：前面没有 “   / ” 
+
+代表当前类的目录 
+
+me.class.getResourceAsStream(&quot;myfile.xml&quot;); 
+
+me.class.getResourceAsStream(&quot;file/myfile.xml&quot;); 
+
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;hr /&gt;
+
+&lt;p&gt;下面是从网络上转载过来的内容：&lt;/p&gt;
+
+&lt;p&gt;1，首先，Java中的getResourceAsStream有以下几种：&lt;/p&gt;
+&lt;ol&gt;
+  &lt;li&gt;
+    &lt;p&gt;Class.getResourceAsStream(String path) ： path 不以’/’开头时默认是从此类所在的包下取资源，以’/’开头则是从ClassPath根下获取。其只是通过path构造一个绝对路径，最终还是由ClassLoader获取资源。&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Class.getClassLoader.getResourceAsStream(String path) ：默认则是从ClassPath根下获取，path不能以’/’开头，最终是由ClassLoader获取资源。&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;ServletContext. getResourceAsStream(String path)：默认从WebAPP根目录下取资源，Tomcat下path是否以’/’开头无所谓，当然这和具体的容器实现有关。&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Jsp下的application内置对象就是上面的ServletContext的一种实现。&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+</content>
+ </entry>
+ 
+ <entry>
+   <title>java打印gc日志</title>
+   <link href="http://changer119.github.io/%E7%A0%94%E7%A3%A8%E6%8A%80%E6%9C%AF/2015/10/16/java%E6%89%93%E5%8D%B0gc%E6%97%A5%E5%BF%97"/>
+   <updated>2015-10-16T00:00:00+08:00</updated>
+   <id>http://changer119.github.io/%E7%A0%94%E7%A3%A8%E6%8A%80%E6%9C%AF/2015/10/16/java打印gc日志</id>
+   <content type="html">&lt;p&gt;todo&lt;/p&gt;
+
+</content>
+ </entry>
+ 
+ <entry>
+   <title>DBCP连接池常见问题</title>
+   <link href="http://changer119.github.io/%E7%A0%94%E7%A3%A8%E6%8A%80%E6%9C%AF/2015/10/15/DBCP%E8%BF%9E%E6%8E%A5%E6%B1%A0"/>
+   <updated>2015-10-15T00:00:00+08:00</updated>
+   <id>http://changer119.github.io/%E7%A0%94%E7%A3%A8%E6%8A%80%E6%9C%AF/2015/10/15/DBCP连接池</id>
+   <content type="html">&lt;p&gt;连接池主要用来管理数据库连接（connection）。常见的连接池有DBCP、C3P0.&lt;/p&gt;
+
+&lt;p&gt;目前项目中使用的是DBCP，简单介绍下它的参数配置。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://changer119.qiniudn.com/QQ20151016-0@2x.png&quot; alt=&quot;DBCP参数配置&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;需要重点注意的地方&lt;/strong&gt;&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;目前maxActiveSize个连接都在被使用，这时刚好又有一个请求过来。这个请求是拿不到connection资源的，它必须等待，直到有连接空闲出来&lt;strong&gt;或者&lt;/strong&gt;超时（maxWait）。如果超时，很可能产生如下错误信息。&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;Caused by: org.springframework.jdbc.CannotGetJdbcConnectionException: Could not get JDBC Connection; nested exception is org.apache.commons.dbcp.SQLNestedException: Cannot get a connection, pool error Timeout waiting for idle object
+Caused by: org.apache.commons.dbcp.SQLNestedException: Cannot get a connection, pool error Timeout waiting for idle object
+Caused by: java.util.NoSuchElementException: Timeout waiting for idle object&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;### Error querying database.  Cause: org.springframework.jdbc.CannotGetJdbcConnectionException: Could not get JDBC Connection; nested exception is org.apache.commons.dbcp.SQLNestedException: Cannot get a connection, pool error Timeout waiting for idle object&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;### Cause: org.springframework.jdbc.CannotGetJdbcConnectionException: Could not get JDBC Connection; nested exception is org.apache.commons.dbcp.SQLNestedException: Cannot get a connection, pool error Timeout waiting for idle object,&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;### Error querying database.  Cause: org.springframework.jdbc.CannotGetJdbcConnectionException: Could not get JDBC Connection; nested exception is org.apache.commons.dbcp.SQLNestedException: Cannot get a connection, pool error Timeout waiting for idle object&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;如果maxIdleSize=10，它表示允许的空闲连接数最多为10. 如果有新的连接空闲下来，使总的空闲连接超过10个，那么必须有空闲连接被kill掉。&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h2 id=&quot;mysql连接数的问题&quot;&gt;mysql连接数的问题&lt;/h2&gt;
+
+&lt;h3 id=&quot;查看目前有多少个连接&quot;&gt;查看目前有多少个连接&lt;/h3&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;// 数据库sql查看 root账户可以看到所有用户的连接数
+// show processlist 只能看到前100条记录
+show processlist
+
+// 查看全部数据
+show full processlist
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h3 id=&quot;查看mysql能够支持的最大连接数&quot;&gt;查看mysql能够支持的最大连接数&lt;/h3&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;show variables like '%max_connections%'
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h3 id=&quot;查看mysql状态删除更新操作的次数等&quot;&gt;查看mysql状态（删除、更新操作的次数等）&lt;/h3&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;show 
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+</content>
+ </entry>
+ 
+ <entry>
    <title>mysql常用命令</title>
    <link href="http://changer119.github.io/%E7%A0%94%E7%A3%A8%E6%8A%80%E6%9C%AF/2015/09/22/mysql%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4"/>
    <updated>2015-09-22T00:00:00+08:00</updated>
    <id>http://changer119.github.io/%E7%A0%94%E7%A3%A8%E6%8A%80%E6%9C%AF/2015/09/22/mysql常用命令</id>
-   <content type="html">&lt;h2&gt;增删改查相关&lt;/h2&gt;
+   <content type="html">&lt;h2 id=&quot;增删改查相关&quot;&gt;增删改查相关&lt;/h2&gt;
 
-&lt;h3&gt;增加字段&lt;/h3&gt;
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-sql&quot; data-lang=&quot;sql&quot;&gt;&lt;span class=&quot;k&quot;&gt;alter&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;table&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;T_SIMPLE_CUSTINFO&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;add&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;column&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;LastModifiedTime&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;timestamp&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;NOT&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;NULL&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;DEFAULT&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;CURRENT_TIMESTAMP&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;ON&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;UPDATE&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;CURRENT_TIMESTAMP&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;h3&gt;修改字段名&lt;/h3&gt;
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-sql&quot; data-lang=&quot;sql&quot;&gt;&lt;span class=&quot;o&quot;&gt;//&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;原字段&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;UserName&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;的类型也要放到&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;sql&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;语句里（否则会出错），尽管它没有改变&lt;/span&gt;
-&lt;span class=&quot;k&quot;&gt;alter&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;table&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;T_SIMPLE_CUSTINFO&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;change&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;column&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;UserName&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;UserNameNew&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;varchar&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;50&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;DEFAULT&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;&amp;#39;&amp;#39;&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;COMMENT&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;&amp;#39;用户名&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;h3&gt;修改字段类型&lt;/h3&gt;
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-sql&quot; data-lang=&quot;sql&quot;&gt;&lt;span class=&quot;o&quot;&gt;//&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;只要后面跟上想要的字段类型即可&lt;/span&gt;
-&lt;span class=&quot;k&quot;&gt;alter&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;table&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;T_SIMPLE_CUSTINFO&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;modify&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;column&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;UserName&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;varchar&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;50&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;DEFAULT&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;&amp;#39;&amp;#39;&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;COMMENT&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;&amp;#39;用户名&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;h3&gt;删除字段&lt;/h3&gt;
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-sql&quot; data-lang=&quot;sql&quot;&gt;&lt;span class=&quot;o&quot;&gt;//&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;一次删除多个字段&lt;/span&gt;
+&lt;h3 id=&quot;增加字段&quot;&gt;增加字段&lt;/h3&gt;
+
+&lt;div class=&quot;language-sql highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;alter&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;table&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;T_SIMPLE_CUSTINFO&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;add&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;column&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;LastModifiedTime&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;timestamp&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;NOT&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;NULL&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;DEFAULT&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;CURRENT_TIMESTAMP&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;ON&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;UPDATE&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;CURRENT_TIMESTAMP&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h3 id=&quot;修改字段名&quot;&gt;修改字段名&lt;/h3&gt;
+
+&lt;div class=&quot;language-sql highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;//&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;原字段&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;UserName&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;的类型也要放到&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;sql&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;语句里（否则会出错），尽管它没有改变&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;alter&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;table&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;T_SIMPLE_CUSTINFO&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;change&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;column&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;UserName&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;UserNameNew&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;varchar&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;50&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;DEFAULT&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;''&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;COMMENT&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'用户名'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h3 id=&quot;修改字段类型&quot;&gt;修改字段类型&lt;/h3&gt;
+
+&lt;div class=&quot;language-sql highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;//&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;只要后面跟上想要的字段类型即可&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;alter&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;table&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;T_SIMPLE_CUSTINFO&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;modify&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;column&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;UserName&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;varchar&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;50&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;DEFAULT&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;''&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;COMMENT&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'用户名'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h3 id=&quot;删除字段&quot;&gt;删除字段&lt;/h3&gt;
+
+&lt;div class=&quot;language-sql highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;//&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;一次删除多个字段&lt;/span&gt;
 &lt;span class=&quot;k&quot;&gt;alter&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;table&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;T_SIMPLE_CUSTINFO&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;drop&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;column&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;UserName&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;drop&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;column&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Age&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;</content>
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h3 id=&quot;修改表auto_increment的起始值&quot;&gt;修改表AUTO_INCREMENT的起始值&lt;/h3&gt;
+
+&lt;div class=&quot;language-sql highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;alter&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;table&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;T_SIMPLE_CUSTINFO&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;AUTO_INCREMENT&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1000&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;TIMESTAMP的变体
+1，TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+在创建新记录和修改现有记录的时候都对这个数据列刷新&lt;/p&gt;
+
+&lt;p&gt;2，TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+在创建新记录的时候把这个字段设置为当前时间，但以后修改时，不再刷新它&lt;/p&gt;
+
+&lt;p&gt;3，TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+在创建新记录的时候把这个字段设置为0，以后修改时刷新它&lt;/p&gt;
+
+&lt;p&gt;4，TIMESTAMP DEFAULT ‘yyyy-mm-dd hh:mm:ss’ ON UPDATE CURRENT_TIMESTAMP 
+在创建新记录的时候把这个字段设置为给定值，以后修改时刷新它&lt;/p&gt;
+
+</content>
  </entry>
  
  <entry>
@@ -41,38 +844,44 @@
    <link href="http://changer119.github.io/%E7%A0%94%E7%A3%A8%E6%8A%80%E6%9C%AF/2015/09/09/MyBatis%E4%BD%BF%E7%94%A8%E6%B1%87%E6%80%BB"/>
    <updated>2015-09-09T00:00:00+08:00</updated>
    <id>http://changer119.github.io/%E7%A0%94%E7%A3%A8%E6%8A%80%E6%9C%AF/2015/09/09/MyBatis使用汇总</id>
-   <content type="html">&lt;h3&gt;xxMapper.java和xxMapper.xml配合使用&lt;/h3&gt;
+   <content type="html">&lt;h3 id=&quot;xxmapperjava和xxmapperxml配合使用&quot;&gt;xxMapper.java和xxMapper.xml配合使用&lt;/h3&gt;
 
-&lt;p&gt;假设DB中有一张表T&lt;em&gt;User，利用Mybatis的generator插件，可以自动生成T&lt;/em&gt;User表的Bean、Mapper等文件，如&lt;/p&gt;
+&lt;p&gt;假设DB中有一张表T_User，利用Mybatis的generator插件，可以自动生成T_User表的Bean、Mapper等文件，如&lt;/p&gt;
 
 &lt;ul&gt;
-&lt;li&gt;User&lt;/li&gt;
-&lt;li&gt;UserMapper.java&lt;/li&gt;
-&lt;li&gt;UserMapper.xml&lt;/li&gt;
+  &lt;li&gt;User&lt;/li&gt;
+  &lt;li&gt;UserMapper.java&lt;/li&gt;
+  &lt;li&gt;UserMapper.xml&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;p&gt;以上文件是自动生成的，它只列出了对T&lt;em&gt;User表常用的操作。如果想对T&lt;/em&gt;User进行比较复杂的操作，则建议新建Ext文件。如&lt;/p&gt;
+&lt;p&gt;以上文件是自动生成的，它只列出了对T_User表常用的操作。如果想对T_User进行比较复杂的操作，则建议新建Ext文件。如&lt;/p&gt;
 
 &lt;ul&gt;
-&lt;li&gt;UserExtMapper.java&lt;/li&gt;
-&lt;li&gt;UserExtMapper.xml&lt;/li&gt;
+  &lt;li&gt;UserExtMapper.java&lt;/li&gt;
+  &lt;li&gt;UserExtMapper.xml&lt;/li&gt;
 &lt;/ul&gt;
 
 &lt;p&gt;下面介绍一种常用的将参数从UserExtMapper.java文件传递到UserExtMapper.xml文件的sql中的方法。&lt;/p&gt;
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-java&quot; data-lang=&quot;java&quot;&gt;&lt;span class=&quot;c1&quot;&gt;// UserExtMapper.java&lt;/span&gt;
-&lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;List&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;User&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;getUsersByUserIds&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nd&quot;&gt;@Param&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;userIds&amp;quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;List&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Integer&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;userIds&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c1&quot;&gt;// UserExtMapper.java&lt;/span&gt;
+&lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;List&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;User&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;getUsersByUserIds&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nd&quot;&gt;@Param&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;userIds&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;List&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Integer&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;userIds&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
 &lt;p&gt;在对应的xml文件中&lt;/p&gt;
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-xml&quot; data-lang=&quot;xml&quot;&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;select&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;id=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;getUsersByUserIds&amp;quot;&lt;/span&gt;
-            &lt;span class=&quot;na&quot;&gt;resultType=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;com.enniu.data.domain.User&amp;quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
+
+&lt;div class=&quot;language-xml highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;select&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;id=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;getUsersByUserIds&quot;&lt;/span&gt;
+            &lt;span class=&quot;na&quot;&gt;resultType=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;com.enniu.data.domain.User&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
         select u.*
         from T_User u
         where u.userId in
-        &lt;span class=&quot;nt&quot;&gt;&amp;lt;foreach&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;collection=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;userIds&amp;quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;item=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;userId&amp;quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;index=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;index&amp;quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;open=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;(&amp;quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;close=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;)&amp;quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;separator=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;,&amp;quot;&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
+        &lt;span class=&quot;nt&quot;&gt;&amp;lt;foreach&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;collection=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;userIds&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;item=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;userId&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;index=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;index&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;open=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;(&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;close=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;)&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;separator=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;,&quot;&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
             #{userId}
         &lt;span class=&quot;nt&quot;&gt;&amp;lt;/foreach&amp;gt;&lt;/span&gt;
     &lt;span class=&quot;nt&quot;&gt;&amp;lt;/select&amp;gt;&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;</content>
+
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+</content>
  </entry>
  
  <entry>
@@ -80,7 +889,8 @@
    <link href="http://changer119.github.io/%E7%A0%94%E7%A3%A8%E6%8A%80%E6%9C%AF/2015/08/31/%E5%85%AC%E5%8F%B8%E4%BD%BF%E7%94%A8gitLab"/>
    <updated>2015-08-31T00:00:00+08:00</updated>
    <id>http://changer119.github.io/%E7%A0%94%E7%A3%A8%E6%8A%80%E6%9C%AF/2015/08/31/公司使用gitLab</id>
-   <content type="html">&lt;h3&gt;启用gitLab&lt;/h3&gt;
+   <content type="html">&lt;h2 id=&quot;git常用&quot;&gt;git常用&lt;/h2&gt;
+
 </content>
  </entry>
  
@@ -89,33 +899,37 @@
    <link href="http://changer119.github.io/%E7%A0%94%E7%A3%A8%E6%8A%80%E6%9C%AF/2015/08/16/Spring%E5%8A%9F%E8%83%BD%E6%A8%A1%E5%9D%97%E5%85%A5%E9%97%A8"/>
    <updated>2015-08-16T00:00:00+08:00</updated>
    <id>http://changer119.github.io/%E7%A0%94%E7%A3%A8%E6%8A%80%E6%9C%AF/2015/08/16/Spring功能模块入门</id>
-   <content type="html">&lt;h2&gt;Spring AOP使用&lt;/h2&gt;
+   <content type="html">&lt;h2 id=&quot;spring-aop使用&quot;&gt;Spring AOP使用&lt;/h2&gt;
 
 &lt;p&gt;这里使用Spring提供的AOP功能。主要有&lt;/p&gt;
 
 &lt;ol&gt;
-&lt;li&gt;配置spring-context.xml文件&lt;/li&gt;
-&lt;li&gt;编写切面类。&lt;/li&gt;
+  &lt;li&gt;配置spring-context.xml文件&lt;/li&gt;
+  &lt;li&gt;编写切面类。&lt;/li&gt;
 &lt;/ol&gt;
 
 &lt;p&gt;下面给出一个例子：&lt;/p&gt;
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-xml&quot; data-lang=&quot;xml&quot;&gt;// 在beans标签里添加AOP的命名空间
-&lt;span class=&quot;nt&quot;&gt;&amp;lt;beans&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;xmlns=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;.....&lt;/span&gt;
-&lt;span class=&quot;s&quot;&gt;    http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd&amp;quot;&lt;/span&gt;
 
+&lt;div class=&quot;language-xml highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;// 在beans标签里添加AOP的命名空间
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;beans&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;xmlns=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;.....
+	http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd&quot;&lt;/span&gt;
+	
 &lt;span class=&quot;err&quot;&gt;&amp;lt;!--申明spring对@AspectJ的支持--&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
 &lt;span class=&quot;nt&quot;&gt;&amp;lt;aop:aspectj-autoproxy&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;/&amp;gt;&lt;/span&gt;
 
 &lt;span class=&quot;c&quot;&gt;&amp;lt;!--切面类 必须先实例化为一个bean，也可以通过注解的方式声明bean--&amp;gt;&lt;/span&gt;
-&lt;span class=&quot;nt&quot;&gt;&amp;lt;bean&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;id=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;aspect&amp;quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;class=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;com.changer.aop.AspectJLogger&amp;quot;&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;/&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;bean&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;id=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;aspect&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;class=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;com.changer.aop.AspectJLogger&quot;&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;/&amp;gt;&lt;/span&gt;
 
 &lt;span class=&quot;c&quot;&gt;&amp;lt;!--配合测试用--&amp;gt;&lt;/span&gt;
-&lt;span class=&quot;nt&quot;&gt;&amp;lt;bean&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;id=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;deptService&amp;quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;class=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;com.changer.service.DeptService&amp;quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
-        &lt;span class=&quot;nt&quot;&gt;&amp;lt;property&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;name=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;deptName&amp;quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;value=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;sales and market&amp;quot;&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;/&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;bean&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;id=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;deptService&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;class=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;com.changer.service.DeptService&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
+        &lt;span class=&quot;nt&quot;&gt;&amp;lt;property&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;name=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;deptName&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;value=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;sales and market&quot;&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;/&amp;gt;&lt;/span&gt;
 &lt;span class=&quot;nt&quot;&gt;&amp;lt;/bean&amp;gt;&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
 &lt;p&gt;&lt;strong&gt;编写切面类&lt;/strong&gt;&lt;/p&gt;
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-java&quot; data-lang=&quot;java&quot;&gt;&lt;span class=&quot;kn&quot;&gt;package&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;com&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;changer&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;aop&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+
+&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kn&quot;&gt;package&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;com&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;changer&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;aop&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
 
 &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;org.aspectj.lang.ProceedingJoinPoint&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
 &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;org.aspectj.lang.annotation.After&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
@@ -125,36 +939,36 @@
 
 &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;java.util.Date&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
 
-&lt;span class=&quot;cm&quot;&gt;/**&lt;/span&gt;
-&lt;span class=&quot;cm&quot;&gt; * 切面类&lt;/span&gt;
-&lt;span class=&quot;cm&quot;&gt; *&lt;/span&gt;
-&lt;span class=&quot;cm&quot;&gt; * 使用@Aspect 注解的类， Spring将会把它当作一个特殊的Bean（一个切面），也就是&lt;/span&gt;
-&lt;span class=&quot;cm&quot;&gt; * 不对这个类本身进行动态代理&lt;/span&gt;
-&lt;span class=&quot;cm&quot;&gt; *&lt;/span&gt;
-&lt;span class=&quot;cm&quot;&gt; * Created by fcjiang on 15/8/15.&lt;/span&gt;
-&lt;span class=&quot;cm&quot;&gt; */&lt;/span&gt;
+&lt;span class=&quot;cm&quot;&gt;/**
+ * 切面类
+ *
+ * 使用@Aspect 注解的类， Spring将会把它当作一个特殊的Bean（一个切面），也就是
+ * 不对这个类本身进行动态代理
+ *
+ * Created by fcjiang on 15/8/15.
+ */&lt;/span&gt;
 &lt;span class=&quot;nd&quot;&gt;@Aspect&lt;/span&gt;
 &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;AspectJLogger&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
 
-    &lt;span class=&quot;cm&quot;&gt;/**&lt;/span&gt;
-&lt;span class=&quot;cm&quot;&gt;     * 必须为final String类型的,注解里要使用的变量只能是静态常量类型的&lt;/span&gt;
-&lt;span class=&quot;cm&quot;&gt;     */&lt;/span&gt;
-    &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;static&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;final&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;String&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;EDP&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;quot;execution(* com.changer.service.DeptService.print*(..))&amp;quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;cm&quot;&gt;/**
+     * 必须为final String类型的,注解里要使用的变量只能是静态常量类型的
+     */&lt;/span&gt;
+    &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;static&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;final&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;String&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;EDP&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;execution(* com.changer.service.DeptService.print*(..))&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
 
     &lt;span class=&quot;c1&quot;&gt;// spring中Before通知&lt;/span&gt;
     &lt;span class=&quot;nd&quot;&gt;@Before&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;EDP&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
     &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;logBefore&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(){&lt;/span&gt;
-        &lt;span class=&quot;n&quot;&gt;System&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;out&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;println&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;logBefore:现在时间是:&amp;quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;+&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;Date&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;());&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;System&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;out&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;println&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;logBefore:现在时间是:&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;+&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Date&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;());&lt;/span&gt;
     &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
 
     &lt;span class=&quot;nd&quot;&gt;@After&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;EDP&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
     &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;logAfter&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(){&lt;/span&gt;
-        &lt;span class=&quot;n&quot;&gt;System&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;out&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;println&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;logAfter:现在时间是:&amp;quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;+&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;Date&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;());&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;System&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;out&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;println&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;logAfter:现在时间是:&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;+&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Date&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;());&lt;/span&gt;
     &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
 
     &lt;span class=&quot;nd&quot;&gt;@Around&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;EDP&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
     &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Object&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;logAround&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ProceedingJoinPoint&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;joinPoint&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;){&lt;/span&gt;
-        &lt;span class=&quot;n&quot;&gt;System&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;out&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;println&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;logAround开始:现在时间是:&amp;quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;+&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;Date&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;());&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;//方法执行前的代理处理&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;System&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;out&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;println&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;logAround开始:现在时间是:&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;+&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Date&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;());&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;//方法执行前的代理处理&lt;/span&gt;
         &lt;span class=&quot;n&quot;&gt;Object&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;[]&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;args&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;joinPoint&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;getArgs&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
         &lt;span class=&quot;n&quot;&gt;Object&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;obj&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;null&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
         &lt;span class=&quot;k&quot;&gt;try&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
@@ -162,29 +976,32 @@
         &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;catch&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Throwable&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;e&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
             &lt;span class=&quot;n&quot;&gt;e&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;printStackTrace&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
         &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
-        &lt;span class=&quot;n&quot;&gt;System&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;out&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;println&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;logAround结束:现在时间是:&amp;quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;+&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;Date&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;());&lt;/span&gt;  &lt;span class=&quot;c1&quot;&gt;//方法执行后的代理处理&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;System&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;out&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;println&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;logAround结束:现在时间是:&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;+&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Date&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;());&lt;/span&gt;  &lt;span class=&quot;c1&quot;&gt;//方法执行后的代理处理&lt;/span&gt;
         &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;obj&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
     &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
 &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
 &lt;p&gt;切面类里有几处需要特别注明的：&lt;/p&gt;
 
 &lt;ul&gt;
-&lt;li&gt;表达切面类需要在哪儿使用的语句（&lt;strong&gt;EDP&lt;/strong&gt;），必须是&lt;em&gt;final String&lt;/em&gt;&lt;/li&gt;
-&lt;li&gt;常用的几个注解 &lt;strong&gt;@Before&lt;/strong&gt; &lt;strong&gt;@After&lt;/strong&gt; &lt;strong&gt;@Around&lt;/strong&gt;&lt;/li&gt;
+  &lt;li&gt;表达切面类需要在哪儿使用的语句（&lt;strong&gt;EDP&lt;/strong&gt;），必须是&lt;em&gt;final String&lt;/em&gt;&lt;/li&gt;
+  &lt;li&gt;常用的几个注解 &lt;strong&gt;@Before&lt;/strong&gt; &lt;strong&gt;@After&lt;/strong&gt; &lt;strong&gt;@Around&lt;/strong&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
 &lt;p&gt;业务逻辑类：&lt;/p&gt;
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-java&quot; data-lang=&quot;java&quot;&gt;&lt;span class=&quot;kn&quot;&gt;package&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;com&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;changer&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;service&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
 
-&lt;span class=&quot;cm&quot;&gt;/**&lt;/span&gt;
-&lt;span class=&quot;cm&quot;&gt; * Created by fcjiang on 15/7/17.&lt;/span&gt;
-&lt;span class=&quot;cm&quot;&gt; */&lt;/span&gt;
+&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kn&quot;&gt;package&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;com&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;changer&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;service&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+
+&lt;span class=&quot;cm&quot;&gt;/**
+ * Created by fcjiang on 15/7/17.
+ */&lt;/span&gt;
 &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;DeptService&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
     &lt;span class=&quot;n&quot;&gt;String&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;deptName&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
 
     &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;DeptService&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
-        &lt;span class=&quot;n&quot;&gt;System&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;out&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;println&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;DeptService被实例化&amp;quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;System&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;out&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;println&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;DeptService被实例化&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
     &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
 
     &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;DeptService&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;String&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;deptName&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
@@ -200,12 +1017,14 @@
     &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
 
     &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;printDept&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(){&lt;/span&gt;
-        &lt;span class=&quot;n&quot;&gt;System&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;out&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;println&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;The Dept is &amp;quot;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;getDeptName&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;());&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;System&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;out&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;println&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;The Dept is &quot;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;getDeptName&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;());&lt;/span&gt;
     &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
 &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
 &lt;p&gt;测试的主程序：&lt;/p&gt;
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-java&quot; data-lang=&quot;java&quot;&gt;&lt;span class=&quot;c1&quot;&gt;// JUnit测试主程序&lt;/span&gt;
+
+&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c1&quot;&gt;// JUnit测试主程序&lt;/span&gt;
 &lt;span class=&quot;kn&quot;&gt;package&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;com&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;changer&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;service&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
 
 &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;com.changer.data.domain.Emp&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
@@ -218,11 +1037,11 @@
 
 &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;java.util.List&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
 
-&lt;span class=&quot;cm&quot;&gt;/**&lt;/span&gt;
-&lt;span class=&quot;cm&quot;&gt; * Created by fcjiang on 15/7/17.&lt;/span&gt;
-&lt;span class=&quot;cm&quot;&gt; */&lt;/span&gt;
+&lt;span class=&quot;cm&quot;&gt;/**
+ * Created by fcjiang on 15/7/17.
+ */&lt;/span&gt;
 &lt;span class=&quot;nd&quot;&gt;@RunWith&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;SpringJUnit4ClassRunner&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;class&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
-&lt;span class=&quot;nd&quot;&gt;@ContextConfiguration&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;locations&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;quot;/spring-context.xml&amp;quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;})&lt;/span&gt;
+&lt;span class=&quot;nd&quot;&gt;@ContextConfiguration&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;locations&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;/spring-context.xml&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;})&lt;/span&gt;
 &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;EmpServiceTest&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
 
     &lt;span class=&quot;nd&quot;&gt;@Autowired&lt;/span&gt;
@@ -231,915 +1050,68 @@
     &lt;span class=&quot;nd&quot;&gt;@Test&lt;/span&gt;
     &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;testGetAllEmps&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(){&lt;/span&gt;
         &lt;span class=&quot;n&quot;&gt;List&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Emp&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;emps&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;empService&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;getAllEmps&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
-        &lt;span class=&quot;n&quot;&gt;Assert&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;assertTrue&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;emps为空&amp;quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;emps&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;size&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()&amp;gt;&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;Assert&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;assertTrue&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;emps为空&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;emps&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;size&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()&amp;gt;&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
     &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
 
 &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;</content>
+
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+</content>
  </entry>
  
  <entry>
-   <title>Mac下常用命令</title>
-   <link href="http://changer119.github.io/%E7%A0%94%E7%A3%A8%E6%8A%80%E6%9C%AF/2015/08/15/Mac%E4%B8%8B%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4"/>
+   <title>Linux/Mac下常用命令</title>
+   <link href="http://changer119.github.io/%E7%A0%94%E7%A3%A8%E6%8A%80%E6%9C%AF/2015/08/15/Linux-Mac%E4%B8%8B%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4"/>
    <updated>2015-08-15T00:00:00+08:00</updated>
-   <id>http://changer119.github.io/%E7%A0%94%E7%A3%A8%E6%8A%80%E6%9C%AF/2015/08/15/Mac下常用命令</id>
-   <content type="html">&lt;h3&gt;查看端口占用&lt;/h3&gt;
+   <id>http://changer119.github.io/%E7%A0%94%E7%A3%A8%E6%8A%80%E6%9C%AF/2015/08/15/Linux:Mac下常用命令</id>
+   <content type="html">&lt;h2 id=&quot;mac环境&quot;&gt;Mac环境&lt;/h2&gt;
+&lt;h3 id=&quot;查看端口占用&quot;&gt;查看端口占用&lt;/h3&gt;
 
 &lt;ul&gt;
-&lt;li&gt;方式1 &lt;strong&gt;推荐&lt;/strong&gt;&lt;/li&gt;
+  &lt;li&gt;方式1 &lt;strong&gt;推荐&lt;/strong&gt;&lt;/li&gt;
 &lt;/ul&gt;
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-sh&quot; data-lang=&quot;sh&quot;&gt;&lt;span class=&quot;c&quot;&gt;# 能够列出应用的PID，方便kill&lt;/span&gt;
+
+&lt;div class=&quot;language-sh highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c&quot;&gt;# 能够列出应用的PID，方便kill&lt;/span&gt;
 &lt;span class=&quot;c&quot;&gt;# lsof 表示列出打开的文件 ls open file，Linux中所有事物都是以文件存在的&lt;/span&gt;
 &lt;span class=&quot;c&quot;&gt;# -i 表示网络链接&lt;/span&gt;
-lsof -i:8080
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;ul&gt;
-&lt;li&gt;方式2&lt;/li&gt;
-&lt;/ul&gt;
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-sh&quot; data-lang=&quot;sh&quot;&gt;&lt;span class=&quot;c&quot;&gt;# 只能列出该端口是否被占用，无法知道对应的PID。&lt;/span&gt;
-netstat -an &lt;span class=&quot;p&quot;&gt;|&lt;/span&gt; grep 8080
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;</content>
- </entry>
- 
- <entry>
-   <title>Spring&amp;MyBatis整合</title>
-   <link href="http://changer119.github.io/%E7%A0%94%E7%A3%A8%E6%8A%80%E6%9C%AF/2015/08/11/Spring&MyBatis%E6%95%B4%E5%90%88"/>
-   <updated>2015-08-11T00:00:00+08:00</updated>
-   <id>http://changer119.github.io/%E7%A0%94%E7%A3%A8%E6%8A%80%E6%9C%AF/2015/08/11/Spring&MyBatis整合</id>
-   <content type="html">&lt;p&gt;本文介绍的Spring&amp;amp;MyBatis整合，是基于Maven和Intellij搭建的。&lt;/p&gt;
-
-&lt;h2&gt;添加依赖&lt;/h2&gt;
-
-&lt;p&gt;这里只列一个清单（主要包括了这些）&lt;/p&gt;
+lsof &lt;span class=&quot;nt&quot;&gt;-i&lt;/span&gt;:8080
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
 &lt;ul&gt;
-&lt;li&gt;Spring&lt;/li&gt;
-&lt;li&gt;Mybatis&lt;/li&gt;
-&lt;li&gt;DBCP&lt;/li&gt;
-&lt;li&gt;Mysql-connector&lt;/li&gt;
-&lt;li&gt;Junit&lt;/li&gt;
-&lt;li&gt;Log4j&lt;/li&gt;
+  &lt;li&gt;方式2&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;h2&gt;配置spring的上下文环境&lt;/h2&gt;
+&lt;div class=&quot;language-sh highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c&quot;&gt;# 只能列出该端口是否被占用，无法知道对应的PID。&lt;/span&gt;
+netstat &lt;span class=&quot;nt&quot;&gt;-an&lt;/span&gt; | &lt;span class=&quot;nb&quot;&gt;grep &lt;/span&gt;8080
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h3 id=&quot;查看整个磁盘的使用情况&quot;&gt;查看整个磁盘的使用情况&lt;/h3&gt;
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;df -h
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h3 id=&quot;查看某个文件夹里文件及文件夹的大小&quot;&gt;查看某个文件夹里文件及文件夹的大小&lt;/h3&gt;
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;# -d 表示要查看目录的深度。如果不设置，就会一直遍历到最深处
+du -h -d 1
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h3 id=&quot;查看cpu占用情况&quot;&gt;查看cpu占用情况&lt;/h3&gt;
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;// 会动态变化
+top
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;h3 id=&quot;查看内存占用情况&quot;&gt;查看内存占用情况&lt;/h3&gt;
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;// 显示总内存、已使用等
+top -l 1 | head -n 10 | grep PhysMem
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h2 id=&quot;linux环境&quot;&gt;Linux环境&lt;/h2&gt;
+
+&lt;h3 id=&quot;建立软链接&quot;&gt;建立软链接&lt;/h3&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;# 给物理路径/fcjiang/data 建立软链接/fcjiangDataLink
+ln -s /fcjiang/data /fcjiangDataLink
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
-&lt;p&gt;&lt;strong&gt;4步大法&lt;/strong&gt;&lt;/p&gt;
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-text&quot; data-lang=&quot;text&quot;&gt;&amp;lt;!-- step0 配置spring支持Annotation，以及自动扫描 --&amp;gt;
-&amp;lt;context:annotation-config/&amp;gt;
-&amp;lt;context:component-scan base-package=&amp;quot;com.changer&amp;quot;/&amp;gt;
-
-&amp;lt;!-- step1 配置dataSource --&amp;gt;
-&amp;lt;bean id=&amp;quot;dataSource&amp;quot; class=&amp;quot;org.apache.commons.dbcp.BasicDataSource&amp;quot; destroy-method=&amp;quot;close&amp;quot;&amp;gt;
-    &amp;lt;property name=&amp;quot;driverClassName&amp;quot; value=&amp;quot;com.mysql.jdbc.Driver&amp;quot;/&amp;gt;
-    &amp;lt;property name=&amp;quot;url&amp;quot; value=&amp;quot;jdbc:mysql://localhost:3306/fcjiangDB&amp;quot;/&amp;gt;
-    &amp;lt;property name=&amp;quot;username&amp;quot; value=&amp;quot;root&amp;quot;/&amp;gt;
-    &amp;lt;property  name=&amp;quot;password&amp;quot; value=&amp;quot;root&amp;quot;/&amp;gt;
-    &amp;lt;!-- 连接池初始连接个数 1个 --&amp;gt;
-    &amp;lt;property name=&amp;quot;initialSize&amp;quot; value=&amp;quot;1&amp;quot;/&amp;gt;
-    &amp;lt;!-- 连接池允许的最大连接个数  50个 --&amp;gt;
-    &amp;lt;property name=&amp;quot;maxActive&amp;quot; value=&amp;quot;50&amp;quot;/&amp;gt;
-    &amp;lt;!-- 最大空闲值.当经过一个高峰时间后，连接池可以慢慢将已经用不到的连接慢慢释放一部分，一直减少到maxIdle为止 --&amp;gt;
-    &amp;lt;property name=&amp;quot;maxIdle&amp;quot; value=&amp;quot;2&amp;quot;/&amp;gt;
-    &amp;lt;!--  最小空闲值.当空闲的连接数少于阀值时，连接池就会预申请去一些连接，以免洪峰来时来不及申请 --&amp;gt;
-    &amp;lt;property name=&amp;quot;minIdle&amp;quot; value=&amp;quot;1&amp;quot;/&amp;gt;
-&amp;lt;/bean&amp;gt;
-
-&amp;lt;!-- step2 配置myBatis的sqlSessionFactory --&amp;gt;
-&amp;lt;bean id=&amp;quot;sqlSessionFactory&amp;quot; class=&amp;quot;org.mybatis.spring.SqlSessionFactoryBean&amp;quot;&amp;gt;
-    &amp;lt;property name=&amp;quot;dataSource&amp;quot; ref=&amp;quot;dataSource&amp;quot; /&amp;gt;
-&amp;lt;/bean&amp;gt;
-
-&amp;lt;!-- step3 配置Mybatis自动扫描到Mapper文件 --&amp;gt;
-&amp;lt;bean class=&amp;quot;org.mybatis.spring.mapper.MapperScannerConfigurer&amp;quot;&amp;gt;
-    &amp;lt;property name=&amp;quot;sqlSessionFactoryBeanName&amp;quot; value=&amp;quot;sqlSessionFactory&amp;quot;/&amp;gt;
-    &amp;lt;property name=&amp;quot;basePackage&amp;quot; value=&amp;quot;com.changer.data.persistence&amp;quot; /&amp;gt;
-&amp;lt;/bean&amp;gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;h2&gt;xml文件的拷贝&lt;/h2&gt;
-
-&lt;p&gt;在工程中，spring-context.xml等xml文件一般放在/src/main/resources目录下。mvn install时，默认会将resources下的xml文件拷贝到编译后的classes目录下。如果要设置其它的xml文件也拷贝到classes目录下，需要修改pom的build节点。&lt;/p&gt;
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-text&quot; data-lang=&quot;text&quot;&gt;&amp;lt;build&amp;gt;
-    &amp;lt;finalName&amp;gt;zd-hello2springmybatis&amp;lt;/finalName&amp;gt;
-    &amp;lt;!--默认会将与src/main/resources目录下的内容拷贝到classpath下--&amp;gt;
-    &amp;lt;resources&amp;gt;
-        &amp;lt;!-- 将src/main/java目录下的所有xml文件拷贝到classpath下 --&amp;gt;
-        &amp;lt;resource&amp;gt;
-            &amp;lt;directory&amp;gt;src/main/java&amp;lt;/directory&amp;gt;
-            &amp;lt;includes&amp;gt;
-                &amp;lt;include&amp;gt;**/*.xml&amp;lt;/include&amp;gt;
-            &amp;lt;/includes&amp;gt;
-        &amp;lt;/resource&amp;gt;
-        &amp;lt;resource&amp;gt;
-            &amp;lt;directory&amp;gt;src/main/resources&amp;lt;/directory&amp;gt;
-            &amp;lt;includes&amp;gt;
-                &amp;lt;include&amp;gt;**/*.xml&amp;lt;/include&amp;gt;
-            &amp;lt;/includes&amp;gt;
-        &amp;lt;/resource&amp;gt;
-    &amp;lt;/resources&amp;gt;
-     ...
-&amp;lt;/build&amp;gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;p&gt;如果&lt;code&gt;&amp;lt;build&amp;gt;&lt;/code&gt;下定义了&lt;code&gt;&amp;lt;resources&amp;gt;&lt;/code&gt;标签，则默认的/src/main/resoureces也不会拷贝到classpath下。如果需要拷贝，就要明确的写出来。&lt;/p&gt;
-</content>
- </entry>
- 
- <entry>
-   <title>Nginx入门</title>
-   <link href="http://changer119.github.io/%E7%A0%94%E7%A3%A8%E6%8A%80%E6%9C%AF/2015/08/10/Nginx%E5%85%A5%E9%97%A8"/>
-   <updated>2015-08-10T00:00:00+08:00</updated>
-   <id>http://changer119.github.io/%E7%A0%94%E7%A3%A8%E6%8A%80%E6%9C%AF/2015/08/10/Nginx入门</id>
-   <content type="html">&lt;h2&gt;为什么引入Nginx&lt;/h2&gt;
-
-&lt;p&gt;以前写web应用，html页面和java代码都放在一个web工程里。tomcat启动之后，用户按照web工程里的目录结构就可以访问到前端页面了。这种方式有一个弊端，那就是前端代码和后端代码耦合太大。引入Nginx，我们可以将前端代码当做一个工程，后端代码是另外一个工程。这样，只要将前端代码放在Nginx配置的root路径下，用于输入URL，Nginx就可以根据URL中的地址，找到要使用的前端页面，从而显示出来。&lt;/p&gt;
-
-&lt;h2&gt;安装Nginx（MacPro环境）&lt;/h2&gt;
-
-&lt;ol&gt;
-&lt;li&gt;&lt;p&gt;安装HomeBrew&lt;/p&gt;
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-text&quot; data-lang=&quot;text&quot;&gt;ruby -e &amp;quot;$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)&amp;quot;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/li&gt;
-&lt;li&gt;&lt;p&gt;安装Nginx&lt;/p&gt;
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-text&quot; data-lang=&quot;text&quot;&gt;brew install nginx
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;p&gt;安装完成后，Nginx的基本配置信息如下：&lt;/p&gt;
-
-&lt;blockquote&gt;
-&lt;p&gt;Docroot is: /usr/local/var/www&lt;/p&gt;
-
-&lt;p&gt;The default port has been set in /usr/local/etc/nginx/nginx.conf to 8080 so that nginx can run without sudo.&lt;/p&gt;
-
-&lt;p&gt;nginx will load all files in /usr/local/etc/nginx/servers/.&lt;/p&gt;
-
-&lt;p&gt;The log is in /usr/local/var/log/nginx&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;h2&gt;启动、关闭Nginx&lt;/h2&gt;
-
-&lt;p&gt;启动Nginx&lt;/p&gt;
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-text&quot; data-lang=&quot;text&quot;&gt;nginx
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;p&gt;关闭nginx&lt;/p&gt;
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-text&quot; data-lang=&quot;text&quot;&gt;nginx -s stop
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;p&gt;Nginx还在运行，加载新的配置文件[有新的静态资源文件加入，也需reload]&lt;/p&gt;
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-text&quot; data-lang=&quot;text&quot;&gt;nginx -s reload
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;p&gt;指定配置文件，启动Nginx&lt;/p&gt;
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-text&quot; data-lang=&quot;text&quot;&gt;nginx -c /file/to/configfile
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;p&gt;查看配置文件是否合法&lt;/p&gt;
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-text&quot; data-lang=&quot;text&quot;&gt;nginx -t
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;p&gt;以上命令，如果出现权限不够，请加上sudo&lt;/p&gt;
-
-&lt;h2&gt;Nginx的配置&lt;/h2&gt;
-
-&lt;p&gt;Nginx默认读取的配置文件是&lt;/p&gt;
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-text&quot; data-lang=&quot;text&quot;&gt;/usr/local/etc/nginx/nginx.conf
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;p&gt;&lt;img src=&quot;http://changer119.qiniudn.com/QQ20150811-1.png&quot; alt=&quot;nginx.conf文件&quot;&gt;&lt;/p&gt;
-
-&lt;p&gt;通过&lt;strong&gt;alias&lt;/strong&gt;方式，用户可以在地址栏输入 &lt;/p&gt;
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-text&quot; data-lang=&quot;text&quot;&gt;http://localhost/hellonginx2  
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;p&gt;访问到存放在 /usr/local/var/www目录下的内容。&lt;/p&gt;
-
-&lt;p&gt;如果/usr/local/var/www目录下还有其它文件夹，例如hellonginx/，可以在地址栏追加这个目录，访问到hellonginx/目录下的内容。&lt;/p&gt;
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-text&quot; data-lang=&quot;text&quot;&gt;http://localhost/hellonginx2/hellonginx
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;</content>
- </entry>
- 
- <entry>
-   <title>Intellij远程调试Tomcat中的应用</title>
-   <link href="http://changer119.github.io/%E7%A0%94%E7%A3%A8%E6%8A%80%E6%9C%AF/2015/07/29/Intellij%E8%BF%9C%E7%A8%8B%E8%B0%83%E8%AF%95Tomcat%E4%B8%AD%E7%9A%84%E5%BA%94%E7%94%A8"/>
-   <updated>2015-07-29T00:00:00+08:00</updated>
-   <id>http://changer119.github.io/%E7%A0%94%E7%A3%A8%E6%8A%80%E6%9C%AF/2015/07/29/Intellij远程调试Tomcat中的应用</id>
-   <content type="html">&lt;p&gt;一个web应用部署到tomcat上去了，如何通过Intellij来调试呢？&lt;/p&gt;
-
-&lt;p&gt;你只需要两步操作，如下：&lt;/p&gt;
-
-&lt;h2&gt;配置tomcat支持远程调试&lt;/h2&gt;
-
-&lt;p&gt;tomcat默认是没有开放远程调试端口的。你需要找到%CATALINA_HOME%/bin/catalina.sh文件，在这个文件的最上面加上下面配置：&lt;/p&gt;
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-text&quot; data-lang=&quot;text&quot;&gt;export JAVA_OPTS=&amp;#39;-agentlib:jdwp=transport=dt_socket,address=53013,suspend=n,server=y&amp;#39;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;p&gt;上面的配置会让tomcat在启动后监听端口&lt;strong&gt;53013&lt;/strong&gt;，这个端口你可以自行改动。如果Intellij对这个端口发起请求时，就可以连接上tomcat并进行远程调试。&lt;/p&gt;
-
-&lt;h2&gt;配置Intellij的远程调试&lt;/h2&gt;
-
-&lt;p&gt;新增remote调试，配置tomcat在的服务器和监听端口，选择要调试的应用。&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;http://changer119.qiniudn.com/QQ20150729-1.png&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;http://changer119.qiniudn.com/QQ20150729-2.png&quot; alt=&quot;新增remote调试&quot;&gt;&lt;/p&gt;
-
-&lt;p&gt;上图中端口应该为53013&lt;/p&gt;
-
-&lt;hr&gt;
-
-&lt;p&gt;以上配置完成后，就可以启动远程调试了。&lt;/p&gt;
-
-&lt;p&gt;步骤一：正常启动tomcat&lt;/p&gt;
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-text&quot; data-lang=&quot;text&quot;&gt; %CATALINA_HOME%/bin/startup.sh
- // 或者
- %CATALINA_HOME%/bin/catalina.sh start
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;p&gt;步骤二，启动intellij的远程调试&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;http://changer119.qiniudn.com/QQ20150729-3.png&quot; alt=&quot;启动intellij的远程调试&quot;&gt;&lt;/p&gt;
-</content>
- </entry>
- 
- <entry>
-   <title>Spring上手</title>
-   <link href="http://changer119.github.io/%E7%A0%94%E7%A3%A8%E6%8A%80%E6%9C%AF/2015/07/25/Spring%E4%B8%8A%E6%89%8B"/>
-   <updated>2015-07-25T00:00:00+08:00</updated>
-   <id>http://changer119.github.io/%E7%A0%94%E7%A3%A8%E6%8A%80%E6%9C%AF/2015/07/25/Spring上手</id>
-   <content type="html">&lt;h2&gt;Spring模块&lt;/h2&gt;
-
-&lt;p&gt;&lt;img src=&quot;http://changer119.qiniudn.com/QQ20150725-3.png&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
-
-&lt;h2&gt;Spring Bean配置&lt;/h2&gt;
-
-&lt;p&gt;&lt;img src=&quot;http://changer119.qiniudn.com/QQ20150726-1.png&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
-
-&lt;p&gt;ApplicationContext的3个实现：&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;http://changer119.qiniudn.com/QQ20150726-2.png&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;http://changer119.qiniudn.com/QQ20150726-3.png&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;http://changer119.qiniudn.com/QQ20150726-5.png&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;http://changer119.qiniudn.com/QQ20150726-6.png&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
-
-&lt;p&gt;创建内部bean&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;http://changer119.qiniudn.com/QQ20150726-7.png&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
-
-&lt;p&gt;为Map数据赋值&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;http://changer119.qiniudn.com/QQ20150726-8.png&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
-
-&lt;p&gt;为Properties赋值&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;http://changer119.qiniudn.com/QQ20150726-9.png&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;http://changer119.qiniudn.com/QQ20150726-10.png&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;http://changer119.qiniudn.com/QQ20150726-11.png&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;http://changer119.qiniudn.com/QQ20150726-12.png&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;http://changer119.qiniudn.com/QQ20150726-9.png&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;http://changer119.qiniudn.com/QQ20150726-9.png&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;http://changer119.qiniudn.com/QQ20150726-9.png&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;http://changer119.qiniudn.com/QQ20150726-9.png&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
-
-&lt;h3&gt;通过FactoryBean实现注入&lt;/h3&gt;
-
-&lt;p&gt;用户需要实现FactoryBean接口，然后在beans.xml里配置bean，bean的class是指向自己写的那个类的全类名。&lt;/p&gt;
-
-&lt;p&gt;自己写的类，实现了Spring的FactoryBean接口&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;http://changer119.qiniudn.com/QQ20150726-14.png&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
-
-&lt;p&gt;beans.xml文件的配置&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;http://changer119.qiniudn.com/QQ20150726-13.png&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
-
-&lt;h2&gt;通过注解配置&lt;/h2&gt;
-
-&lt;p&gt;&lt;img src=&quot;http://changer119.qiniudn.com/QQ20150726-15.png&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;http://changer119.qiniudn.com/QQ20150726-16.png&quot; alt=&quot;&quot;&gt; &lt;/p&gt;
-
-&lt;p&gt;自动装配&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;http://changer119.qiniudn.com/QQ20150726-17.png&quot; alt=&quot;&quot;&gt; &lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;http://changer119.qiniudn.com/QQ20150726-18.png&quot; alt=&quot;&quot;&gt; &lt;/p&gt;
-</content>
- </entry>
- 
- <entry>
-   <title>Java项目中路径Path解析</title>
-   <link href="http://changer119.github.io/%E7%A0%94%E7%A3%A8%E6%8A%80%E6%9C%AF/2015/07/25/Java%E9%A1%B9%E7%9B%AE%E4%B8%AD%E8%B7%AF%E5%BE%84Path%E8%A7%A3%E6%9E%90"/>
-   <updated>2015-07-25T00:00:00+08:00</updated>
-   <id>http://changer119.github.io/%E7%A0%94%E7%A3%A8%E6%8A%80%E6%9C%AF/2015/07/25/Java项目中路径Path解析</id>
-   <content type="html">&lt;h2&gt;读取文件&lt;/h2&gt;
-
-&lt;h3&gt;通过Resource读取&lt;/h3&gt;
-
-&lt;p&gt;java语言中Class对象有一个方法&lt;em&gt;getResource()&lt;/em&gt;，通过这个方法可以读取文件。但它有一个缺点，就是只能读取放在编译后目录中文件，对于那些在src源码目录中存在但没有编译到classpath目录中的文件是读取不到的。&lt;/p&gt;
-
-&lt;p&gt;利用maven管理工程时，&lt;em&gt;projectName/src/main/java/&lt;/em&gt;目录下放源码，&lt;em&gt;projectName/src/main/resources/&lt;/em&gt;目录下放资源文件。&lt;/p&gt;
-
-&lt;p&gt;编译后，maven会生成一个&lt;em&gt;projectName/target&lt;/em&gt;目录，下面会有一个&lt;em&gt;classes&lt;/em&gt;目录，&lt;em&gt;project/target/classes/&lt;/em&gt;目录就整个工程的classpath。源码编译后的.class文件就按照package结构放在classes目录下，&lt;em&gt;projectName/src/main/resources/&lt;/em&gt;下的资源房间也会自动放到classes根目录下。&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;http://changer119.qiniudn.com/QQ20150725-2.png&quot; alt=&quot;源码结构&quot;&gt;&lt;/p&gt;
-
-&lt;p&gt;下面是一个工程的文件结构：&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;http://changer119.qiniudn.com/QQ20150725-1.png&quot; alt=&quot;源码结构&quot;&gt;&lt;/p&gt;
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-text&quot; data-lang=&quot;text&quot;&gt;// aa1Url是null，获取不到aa1.txt
-// aa1.txt aa2.txt都是在java源代码所在的目录，不会编译到target目录下，所以getResource访问不到。
-URL aa1Url = ResourceTest.class.getResource(&amp;quot;aa1.txt&amp;quot;);
-File aa1 = new File(aa1Url.getFile());
-
-// 必须在aa3.txt前加/，表示是classess根目录下的aa3.txt，如果不加/，则需要main/resources目录下有一个和ResourceTest包结构一模一样的路径来存放aa3.txt
-URL aa3Url = ResourceTest.class.getResource(&amp;quot;/aa3.txt&amp;quot;);
-File aa3 = new File(aa3Url.getFile());
-
-URL aa4Url = ResourceTest.class.getResource(&amp;quot;/config/aa4.txt&amp;quot;);
-File aa4 = new File(aa4Url.getFile());
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;p&gt;&lt;strong&gt;建议：使用getResource时，都加上/，从classes根目录下计算相对路径&lt;/strong&gt;&lt;/p&gt;
-
-&lt;p&gt;&lt;strong&gt;getResource有一个变种getResourceAsStream，具体使用可google&lt;/strong&gt;&lt;/p&gt;
-
-&lt;h3&gt;题外话（如何查看工程的classpath呢？）&lt;/h3&gt;
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-text&quot; data-lang=&quot;text&quot;&gt;// /表示classpath所在的根路径
-URL url = ResourceTest.class.getResource(&amp;quot;/&amp;quot;);
-System.out.println(url);
-// 输出file:/Users/fcjiang/projectName.......
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;p&gt;这时，估计有人纳闷了，难道main/java源码结构下的文件就不能读取啦？getResource方式是不行了，可以用&lt;strong&gt;File去读取&lt;/strong&gt;&lt;/p&gt;
-
-&lt;h2&gt;通过File读取文件&lt;/h2&gt;
-
-&lt;p&gt;上例中的aa1.txt和aa2.txt文件可以通过File+绝对路径的方式读取。&lt;/p&gt;
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-text&quot; data-lang=&quot;text&quot;&gt;File aa1 = new File(&amp;quot;/Users/fcjiang/projectName/src/main/java/com/changer/app/aa1.txt&amp;quot;);
-File aa1 = new File(&amp;quot;/Users/fcjiang/projectName/src/main/java/com/changer/aa2.txt&amp;quot;);
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;</content>
- </entry>
- 
- <entry>
-   <title>Beyond Compare 4试用版破解</title>
-   <link href="http://changer119.github.io/%E5%96%84%E5%81%87%E4%BA%8E%E7%89%A9/2015/07/21/Beyond%20Compare%204%E8%AF%95%E7%94%A8%E7%89%88%E7%A0%B4%E8%A7%A3"/>
-   <updated>2015-07-21T00:00:00+08:00</updated>
-   <id>http://changer119.github.io/%E5%96%84%E5%81%87%E4%BA%8E%E7%89%A9/2015/07/21/Beyond Compare 4试用版破解</id>
-   <content type="html">&lt;p&gt;&lt;em&gt;以下方法亲测可用&lt;/em&gt;&lt;/p&gt;
-
-&lt;p&gt;Beyond Compare试用版在本地磁盘上会保留一个dat文件，这个文件会记录你使用Beyond Compare多久了，还有多久逾期。30天期满后，就不能在使用Beyond Compare了。要想继续使用，只要删除该dat文件即可。不过这个删除操作每30天要执行一次。&lt;/p&gt;
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-text&quot; data-lang=&quot;text&quot;&gt;rm /Users/$(whoami)/Library/Application Support/Beyond Compare/registry.dat
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;p&gt;更加详细的，一劳永逸的方法，可参照&lt;a href=&quot;http://www.puteulanus.com/archives/677&quot;&gt;Beyond Compare 4 for Mac 无限试用版&lt;/a&gt;&lt;/p&gt;
-</content>
- </entry>
- 
- <entry>
-   <title>互联网金融监管意见发布</title>
-   <link href="http://changer119.github.io/2015/07/18/%E4%BA%92%E8%81%94%E7%BD%91%E9%87%91%E8%9E%8D%E7%9B%91%E7%AE%A1%E6%84%8F%E8%A7%81%E5%8F%91%E5%B8%83"/>
-   <updated>2015-07-18T00:00:00+08:00</updated>
-   <id>http://changer119.github.io/2015/07/18/互联网金融监管意见发布</id>
-   <content type="html">&lt;p&gt;2015年7月18日，国家终于发布了&lt;strong&gt;互联网金融监管意见&lt;/strong&gt;。这份意见是10部委联合起草的，目前还只是框架性建议。具体的监管细节文件还在草拟中。&lt;/p&gt;
-
-&lt;p&gt;&lt;em&gt;[全文如下]&lt;/em&gt;&lt;/p&gt;
-
-&lt;p&gt;近年来，互联网技术、信息通信技术不断取得突破，推动互联网与金融快速融合，促进了金融创新，提高了金融资源配置效率，但也存在一些问题和风险隐患。为全面贯彻落实党的十八大和十八届二中、三中、四中全会精神，按照党中央、国务院决策部署，遵循“鼓励创新、防范风险、趋利避害、健康发展”的总体要求，从金融业健康发展全局出发，进一步推进金融改革创新和对外开放，促进互联网金融健康发展，经党中央、国务院同意，现提出以下意见。&lt;/p&gt;
-
-&lt;h3&gt;一、鼓励创新，支持互联网金融稳步发展&lt;/h3&gt;
-
-&lt;p&gt;互联网金融是传统金融机构与互联网企业(以下统称从业机构)利用互联网技术和信息通信技术实现资金融通、支付、投资和信息中介服务的新型金融业务模式。互联网与金融深度融合是大势所趋，将对金融产品、业务、组织和服务等方面产生更加深刻的影响。互联网金融对促进小微企业发展和扩大就业发挥了现有金融机构难以替代的积极作用，为大众创业、万众创新打开了大门。促进互联网金融健康发展，有利于提升金融服务质量和效率，深化金融改革，促进金融创新发展，扩大金融业对内对外开放，构建多层次金融体系。作为新生事物，互联网金融既需要市场驱动，鼓励创新，也需要政策助力，促进发展。&lt;/p&gt;
-
-&lt;p&gt;&lt;strong&gt;(一)积极鼓励互联网金融平台、产品和服务创新，激发市场活力。&lt;/strong&gt;鼓励银行、证券、保险、基金、信托和消费金融等金融机构依托互联网技术，实现传统金融业务与服务转型升级，积极开发基于互联网技术的新产品和新服务。支持有条件的金融机构建设创新型互联网平台开展网络银行、网络证券、网络保险、网络基金销售和网络消费金融等业务。支持互联网企业依法合规设立互联网支付机构、网络借贷平台、股权众筹融资平台、网络金融产品销售平台，建立服务实体经济的多层次金融服务体系，更好地满足中小微企业和个人投融资需求，进一步拓展普惠金融的广度和深度。鼓励电子商务企业在符合金融法律法规规定的条件下自建和完善线上金融服务体系，有效拓展电商供应链业务。鼓励从业机构积极开展产品、服务、技术和管理创新，提升从业机构核心竞争力。&lt;/p&gt;
-
-&lt;p&gt;&lt;strong&gt;(二)鼓励从业机构相互合作，实现优势互补。&lt;/strong&gt;支持各类金融机构与互联网企业开展合作，建立良好的互联网金融生态环境和产业链。鼓励银行业金融机构开展业务创新，为第三方支付机构和网络贷款平台等提供资金存管、支付清算等配套服务。支持小微金融服务机构与互联网企业开展业务合作，实现商业模式创新。支持证券、基金、信托、消费金融、期货机构与互联网企业开展合作，拓宽金融产品销售渠道，创新财富管理模式。鼓励保险公司与互联网企业合作，提升互联网金融企业风险抵御能力。&lt;/p&gt;
-
-&lt;p&gt;&lt;strong&gt;(三)拓宽从业机构融资渠道，改善融资环境。&lt;/strong&gt;支持社会资本发起设立互联网金融产业投资基金，推动从业机构与创业投资机构、产业投资基金深度合作。鼓励符合条件的优质从业机构在主板、创业板等境内资本市场上市融资。鼓励银行业金融机构按照支持小微企业发展的各项金融政策，对处于初创期的从业机构予以支持。针对互联网企业特点，创新金融产品和服务。&lt;/p&gt;
-
-&lt;p&gt;&lt;strong&gt;(四)坚持简政放权，提供优质服务。&lt;/strong&gt;各金融监管部门要积极支持金融机构开展互联网金融业务。按照法律法规规定，对符合条件的互联网企业开展相关金融业务实施高效管理。工商行政管理部门要支持互联网企业依法办理工商注册登记。电信主管部门、国家互联网信息管理部门要积极支持互联网金融业务，电信主管部门对互联网金融业务涉及的电信业务进行监管，国家互联网信息管理部门负责对金融信息服务、互联网信息内容等业务进行监管。积极开展互联网金融领域立法研究，适时出台相关管理规章，营造有利于互联网金融发展的良好制度环境。加大对从业机构专利、商标等知识产权的保护力度。鼓励省级人民政府加大对互联网金融的政策支持。支持设立专业化互联网金融研究机构，鼓励建设互联网金融信息交流平台，积极开展互联网金融研究。&lt;/p&gt;
-
-&lt;p&gt;&lt;strong&gt;(五)落实和完善有关财税政策。&lt;/strong&gt;按照税收公平原则，对于业务规模较小、处于初创期的从业机构，符合我国现行对中小企业特别是小微企业税收政策条件的，可按规定享受税收优惠政策。结合金融业营业税改征增值税改革，统筹完善互联网金融税收政策。落实从业机构新技术、新产品研发费用税前加计扣除政策。&lt;/p&gt;
-
-&lt;p&gt;&lt;strong&gt;(六)推动信用基础设施建设，培育互联网金融配套服务体系。&lt;/strong&gt;支持大数据存储、网络与信息安全维护等技术领域基础设施建设。鼓励从业机构依法建立信用信息共享平台。推动符合条件的相关从业机构接入金融信用信息基础数据库。允许有条件的从业机构依法申请征信业务许可。支持具备资质的信用中介组织开展互联网企业信用评级，增强市场信息透明度。鼓励会计、审计、法律、咨询等中介服务机构为互联网企业提供相关专业服务。&lt;/p&gt;
-
-&lt;h3&gt;二、分类指导，明确互联网金融监管责任&lt;/h3&gt;
-
-&lt;p&gt;互联网金融本质仍属于金融，没有改变金融风险隐蔽性、传染性、广泛性和突发性的特点。加强互联网金融监管，是促进互联网金融健康发展的内在要求。同时，互联网金融是新生事物和新兴业态，要制定适度宽松的监管政策，为互联网金融创新留有余地和空间。通过鼓励创新和加强监管相互支撑，促进互联网金融健康发展，更好地服务实体经济。互联网金融监管应遵循“依法监管、适度监管、分类监管、协同监管、创新监管”的原则，科学合理界定各业态的业务边界及准入条件，落实监管责任，明确风险底线，保护合法经营，坚决打击违法和违规行为。&lt;/p&gt;
-
-&lt;p&gt;&lt;strong&gt;(七)  互联网支付。&lt;/strong&gt;互联网支付是指通过计算机、手机等设备，依托互联网发起支付指令、转移货币资金的服务。互联网支付应始终坚持服务电子商务发展和为社会提供小额、快捷、便民小微支付服务的宗旨。银行业金融机构和第三方支付机构从事互联网支付，应遵守现行法律法规和监管规定。第三方支付机构与其他机构开展合作的，应清晰界定各方的权利义务关系，建立有效的风险隔离机制和客户权益保障机制。要向客户充分披露服务信息，清晰地提示业务风险，不得夸大支付服务中介的性质和职能。互联网支付业务由人民银行负责监管。&lt;/p&gt;
-
-&lt;p&gt;&lt;strong&gt;(八)网络借贷。&lt;/strong&gt;网络借贷包括个体网络借贷(即P2P网络借贷)和网络小额贷款。个体网络借贷是指个体和个体之间通过互联网平台实现的直接借贷。在个体网络借贷平台上发生的直接借贷行为属于民间借贷范畴，受合同法、民法通则等法律法规以及最高人民法院相关司法解释规范。个体网络借贷要坚持平台功能，为投资方和融资方提供信息交互、撮合、资信评估等中介服务。个体网络借贷机构要明确信息中介性质，主要为借贷双方的直接借贷提供信息服务，不得提供增信服务，不得非法集资。网络小额贷款是指互联网企业通过其控制的小额贷款公司，利用互联网向客户提供的小额贷款。网络小额贷款应遵守现有小额贷款公司监管规定，发挥网络贷款优势，努力降低客户融资成本。网络借贷业务由银监会负责监管。&lt;/p&gt;
-
-&lt;p&gt;&lt;strong&gt;(九)股权众筹融资。&lt;/strong&gt;股权众筹融资主要是指通过互联网形式进行公开小额股权融资的活动。股权众筹融资必须通过股权众筹融资中介机构平台(互联网网站或其他类似的电子媒介)进行。股权众筹融资中介机构可以在符合法律法规规定前提下，对业务模式进行创新探索，发挥股权众筹融资作为多层次资本市场有机组成部分的作用，更好服务创新创业企业。股权众筹融资方应为小微企业，应通过股权众筹融资中介机构向投资人如实披露企业的商业模式、经营管理、财务、资金使用等关键信息，不得误导或欺诈投资者。投资者应当充分了解股权众筹融资活动风险，具备相应风险承受能力，进行小额投资。股权众筹融资业务由证监会负责监管。&lt;/p&gt;
-
-&lt;p&gt;&lt;strong&gt;(十)互联网基金销售。&lt;/strong&gt;基金销售机构与其他机构通过互联网合作销售基金等理财产品的，要切实履行风险披露义务，不得通过违规承诺收益方式吸引客户；基金管理人应当采取有效措施防范资产配置中的期限错配和流动性风险；基金销售机构及其合作机构通过其他活动为投资人提供收益的，应当对收益构成、先决条件、适用情形等进行全面、真实、准确表述和列示，不得与基金产品收益混同。第三方支付机构在开展基金互联网销售支付服务过程中，应当遵守人民银行、证监会关于客户备付金及基金销售结算资金的相关监管要求。第三方支付机构的客户备付金只能用于办理客户委托的支付业务，不得用于垫付基金和其他理财产品的资金赎回。互联网基金销售业务由证监会负责监管。&lt;/p&gt;
-
-&lt;p&gt;&lt;strong&gt;(十一)互联网保险。&lt;/strong&gt;保险公司开展互联网保险业务，应遵循安全性、保密性和稳定性原则，加强风险管理，完善内控系统，确保交易安全、信息安全和资金安全。专业互联网保险公司应当坚持服务互联网经济活动的基本定位，提供有针对性的保险服务。保险公司应建立对所属电子商务公司等非保险类子公司的管理制度，建立必要的防火墙。保险公司通过互联网销售保险产品，不得进行不实陈述、片面或夸大宣传过往业绩、违规承诺收益或者承担损失等误导性描述。互联网保险业务由保监会负责监管。&lt;/p&gt;
-
-&lt;p&gt;&lt;strong&gt;(十二)互联网信托和互联网消费金融。&lt;/strong&gt;信托公司、消费金融公司通过互联网开展业务的，要严格遵循监管规定，加强风险管理，确保交易合法合规，并保守客户信息。信托公司通过互联网进行产品销售及开展其他信托业务的，要遵守合格投资者等监管规定，审慎甄别客户身份和评估客户风险承受能力，不能将产品销售给与风险承受能力不相匹配的客户。信托公司与消费金融公司要制定完善产品文件签署制度，保证交易过程合法合规，安全规范。互联网信托业务、互联网消费金融业务由银监会负责监管。&lt;/p&gt;
-
-&lt;h3&gt;三、健全制度，规范互联网金融市场秩序&lt;/h3&gt;
-
-&lt;p&gt;发展互联网金融要以市场为导向，遵循服务实体经济、服从宏观调控和维护金融稳定的总体目标，切实保障消费者合法权益，维护公平竞争的市场秩序。要细化管理制度，为互联网金融健康发展营造良好环境。&lt;/p&gt;
-
-&lt;p&gt;&lt;strong&gt;(十三)互联网行业管理。&lt;/strong&gt;任何组织和个人开设网站从事互联网金融业务的，除应按规定履行相关金融监管程序外，还应依法向电信主管部门履行网站备案手续，否则不得开展互联网金融业务。工业和信息化部负责对互联网金融业务涉及的电信业务进行监管，国家互联网信息办公室负责对金融信息服务、互联网信息内容等业务进行监管，两部门按职责制定相关监管细则。&lt;/p&gt;
-
-&lt;p&gt;&lt;strong&gt;(十四)客户资金第三方存管制度。&lt;/strong&gt;除另有规定外，从业机构应当选择符合条件的银行业金融机构作为资金存管机构，对客户资金进行管理和监督，实现客户资金与从业机构自身资金分账管理。客户资金存管账户应接受独立审计并向客户公开审计结果。人民银行会同金融监管部门按照职责分工实施监管，并制定相关监管细则。&lt;/p&gt;
-
-&lt;p&gt;&lt;strong&gt;(十五)信息披露、风险提示和合格投资者制度。&lt;/strong&gt;从业机构应当对客户进行充分的信息披露，及时向投资者公布其经营活动和财务状况的相关信息，以便投资者充分了解从业机构运作状况，促使从业机构稳健经营和控制风险。从业机构应当向各参与方详细说明交易模式、参与方的权利和义务，并进行充分的风险提示。要研究建立互联网金融的合格投资者制度，提升投资者保护水平。有关部门按照职责分工负责监管。&lt;/p&gt;
-
-&lt;p&gt;&lt;strong&gt;(十六)消费者权益保护。&lt;/strong&gt;研究制定互联网金融消费者教育规划，及时发布维权提示。加强互联网金融产品合同内容、免责条款规定等与消费者利益相关的信息披露工作，依法监督处理经营者利用合同格式条款侵害消费者合法权益的违法、违规行为。构建在线争议解决、现场接待受理、监管部门受理投诉、第三方调解以及仲裁、诉讼等多元化纠纷解决机制。细化完善互联网金融个人信息保护的原则、标准和操作流程。严禁网络销售金融产品过程中的不实宣传、强制捆绑销售。人民银行、银监会、证监会、保监会会同有关行政执法部门，根据职责分工依法开展互联网金融领域消费者和投资者权益保护工作。&lt;/p&gt;
-
-&lt;p&gt;&lt;strong&gt;(十七)网络与信息安全。&lt;/strong&gt;从业机构应当切实提升技术安全水平，妥善保管客户资料和交易信息，不得非法买卖、泄露客户个人信息。人民银行、银监会、证监会、保监会、工业和信息化部、公安部、国家互联网信息办公室分别负责对相关从业机构的网络与信息安全保障进行监管，并制定相关监管细则和技术安全标准。&lt;/p&gt;
-
-&lt;p&gt;&lt;strong&gt;(十八)反洗钱和防范金融犯罪。&lt;/strong&gt;从业机构应当采取有效措施识别客户身份，主动监测并报告可疑交易，妥善保存客户资料和交易记录。从业机构有义务按照有关规定，建立健全有关协助查询、冻结的规章制度，协助公安机关和司法机关依法、及时查询、冻结涉案财产，配合公安机关和司法机关做好取证和执行工作。坚决打击涉及非法集资等互联网金融犯罪，防范金融风险，维护金融秩序。金融机构在和互联网企业开展合作、代理时应根据有关法律和规定签订包括反洗钱和防范金融犯罪要求的合作、代理协议，并确保不因合作、代理关系而降低反洗钱和金融犯罪执行标准。人民银行牵头负责对从业机构履行反洗钱义务进行监管，并制定相关监管细则。打击互联网金融犯罪工作由公安部牵头负责。&lt;/p&gt;
-
-&lt;p&gt;&lt;strong&gt;(十九)加强互联网金融行业自律。&lt;/strong&gt;充分发挥行业自律机制在规范从业机构市场行为和保护行业合法权益等方面的积极作用。人民银行会同有关部门，组建中国互联网金融协会。协会要按业务类型，制订经营管理规则和行业标准，推动机构之间的业务交流和信息共享。协会要明确自律惩戒机制，提高行业规则和标准的约束力。强化守法、诚信、自律意识，树立从业机构服务经济社会发展的正面形象，营造诚信规范发展的良好氛围。&lt;/p&gt;
-
-&lt;p&gt;&lt;strong&gt;(二十)监管协调与数据统计监测。&lt;/strong&gt;各监管部门要相互协作、形成合力，充分发挥金融监管协调部际联席会议制度的作用。人民银行、银监会、证监会、保监会应当密切关注互联网金融业务发展及相关风险，对监管政策进行跟踪评估，适时提出调整建议，不断总结监管经验。财政部负责互联网金融从业机构财务监管政策。人民银行会同有关部门，负责建立和完善互联网金融数据统计监测体系，相关部门按照监管职责分工负责相关互联网金融数据统计和监测工作，并实现统计数据和信息共享。&lt;/p&gt;
-
-&lt;p&gt;&lt;em&gt;[全文完]&lt;/em&gt;&lt;/p&gt;
-</content>
- </entry>
- 
- <entry>
-   <title>Spring @Transactional事务管理</title>
-   <link href="http://changer119.github.io/2015/07/15/Spring%20@Transactional%E4%BA%8B%E5%8A%A1%E7%AE%A1%E7%90%86"/>
-   <updated>2015-07-15T00:00:00+08:00</updated>
-   <id>http://changer119.github.io/2015/07/15/Spring @Transactional事务管理</id>
-   <content type="html">&lt;h3&gt;事务是什么？&lt;/h3&gt;
-
-&lt;h3&gt;Spring的事务管理&lt;/h3&gt;
-
-&lt;p&gt;&lt;strong&gt;Spring的事务管理由注解@Transactional实现&lt;/strong&gt;&lt;/p&gt;
-
-&lt;p&gt;既可以在类上添加@Transactional，也可以在方法上添加@Transactional。在类前加上@Transactional，声明这个类的所有方法都需要事务管理，每一个业务方法开始时都会打开一个事务。在方法前添加@Transactional，表示这一个方法需要进行事务管理。&lt;/p&gt;
-
-&lt;p&gt;Spring默认情况下会对运行期异常(RunTimeException)进行事务回滚，Unchecked Exception异常除外。&lt;/p&gt;
-
-&lt;p&gt;如何改变默认规则： &lt;/p&gt;
-
-&lt;p&gt;1 让checked例外也回滚：在整个方法前加上 @Transactional(rollbackFor=Exception.class) &lt;/p&gt;
-
-&lt;p&gt;2 让unchecked例外不回滚： @Transactional(notRollbackFor=RunTimeException.class) &lt;/p&gt;
-
-&lt;p&gt;3 不需要事务管理的(只查询的)方法：@Transactional(propagation=Propagation.NOT_SUPPORTED) &lt;/p&gt;
-
-&lt;p&gt;在整个方法运行前就不会开启事务 &lt;/p&gt;
-
-&lt;p&gt;单独使用 @Transactional 注释时，事务传播模式被设置成什么呢？只读标志被设置成什么呢？事务隔离级别的设置是怎样的？更重要的是，事务应何时回滚工作？理解如何使用这个注释对于确保在应用程序中获得合适的事务支持级别非常重要。回答我刚才提出的问题：在单独使用不带任何参数的 @Transactional 注释时，传播模式要设置为 REQUIRED，只读标志设置为 false，事务隔离级别设置为 READ_COMMITTED，而且事务不会针对受控异常（checked exception）回滚。 &lt;/p&gt;
-
-&lt;h3&gt;@Transactional的事务传递&lt;/h3&gt;
-
-&lt;table&gt;&lt;thead&gt;
-&lt;tr&gt;
-&lt;th&gt;id&lt;/th&gt;
-&lt;th&gt;amount&lt;/th&gt;
-&lt;/tr&gt;
-&lt;/thead&gt;&lt;tbody&gt;
-&lt;tr&gt;
-&lt;td&gt;1&lt;/td&gt;
-&lt;td&gt;1000&lt;/td&gt;
-&lt;/tr&gt;
-&lt;/tbody&gt;&lt;/table&gt;
-
-&lt;h2&gt;问题是什么&lt;/h2&gt;
-
-&lt;p&gt;假设有一张表T_ACCOUNT，它的字段如下：&lt;/p&gt;
-
-&lt;table&gt;&lt;thead&gt;
-&lt;tr&gt;
-&lt;th&gt;id&lt;/th&gt;
-&lt;th&gt;amount&lt;/th&gt;
-&lt;/tr&gt;
-&lt;/thead&gt;&lt;tbody&gt;
-&lt;tr&gt;
-&lt;td&gt;1&lt;/td&gt;
-&lt;td&gt;1000&lt;/td&gt;
-&lt;/tr&gt;
-&lt;/tbody&gt;&lt;/table&gt;
-
-&lt;p&gt;这里有两个线程：A和B。A需要给id=1的用户增加300元，而B需要给id=1的记录减掉100元。 可能的方法如下：&lt;/p&gt;
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-text&quot; data-lang=&quot;text&quot;&gt;void updateWithId(int id, int deltaAmount)
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;p&gt;如果A先执行，B后执行，最后的amount的值为1200。如果B先执行，A后执行，最后的结果也是1200.最担心的情况的是，A和B同时执行。A、B两个线程同时读取到当前的值（1000），每个线程会将这个数据保存在自身的栈里。然后，A、B会竞争去做update操作，数据库引擎会保证同一时刻只有一个线程在update。如果A先做了update操作，DB中的amount会变成1300。这时B再做update，由于B已经将amount的值保留在栈内了（值为之前取到的1000），update之后，amount会变为900. 这明显不符合逻辑，多并发引起了数据的不一致。&lt;/p&gt;
-
-&lt;h2&gt;如何解决&lt;/h2&gt;
-
-&lt;h3&gt;方式1（利用versionId）&lt;/h3&gt;
-
-&lt;p&gt;在设计表的时候，多预留一个字段为version_id。它是一个普通的int类型。&lt;/p&gt;
-
-&lt;table&gt;&lt;thead&gt;
-&lt;tr&gt;
-&lt;th&gt;id&lt;/th&gt;
-&lt;th&gt;amount&lt;/th&gt;
-&lt;th&gt;version_id&lt;/th&gt;
-&lt;/tr&gt;
-&lt;/thead&gt;&lt;tbody&gt;
-&lt;tr&gt;
-&lt;td&gt;1&lt;/td&gt;
-&lt;td&gt;1000&lt;/td&gt;
-&lt;td&gt;1&lt;/td&gt;
-&lt;/tr&gt;
-&lt;/tbody&gt;&lt;/table&gt;
-
-&lt;p&gt;在定义方法的时候，要增加一个versionId进去。&lt;/p&gt;
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-text&quot; data-lang=&quot;text&quot;&gt;void updateWithIdAndVersionId(int id, int versionId,int deltaAmount)
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;p&gt;这样，当A、B同时执行。A和B先查询记录，发现id=1，versionId=1，并将结果保存在自己的栈内。当执行update操作时，总会有一个先执行。假设A先执行，A在调用updateWithIdAndVersionId方法时，程序需要&lt;strong&gt;将versionId加1&lt;/strong&gt;，这样一来，DB中id=1的记录的version_id就是2了。当B再执行updateWithIdAndVersionId操作，它根据2个条件（id=1、versionId=1）去更新。因为此时DB中已不存在这条记录了，所以更新失败。通过这种方法就可以保证多并发对数据操作的一致性。&lt;/p&gt;
-</content>
- </entry>
- 
- <entry>
-   <title>多并发下的DB更新</title>
-   <link href="http://changer119.github.io/2015/07/14/%E5%A4%9A%E5%B9%B6%E5%8F%91%E4%B8%8B%E7%9A%84DB%E6%9B%B4%E6%96%B0"/>
-   <updated>2015-07-14T00:00:00+08:00</updated>
-   <id>http://changer119.github.io/2015/07/14/多并发下的DB更新</id>
-   <content type="html">&lt;h2&gt;问题是什么&lt;/h2&gt;
-
-&lt;p&gt;假设有一张表T_ACCOUNT，它的字段如下：&lt;/p&gt;
-
-&lt;table&gt;&lt;thead&gt;
-&lt;tr&gt;
-&lt;th&gt;id&lt;/th&gt;
-&lt;th&gt;amount&lt;/th&gt;
-&lt;/tr&gt;
-&lt;/thead&gt;&lt;tbody&gt;
-&lt;tr&gt;
-&lt;td&gt;1&lt;/td&gt;
-&lt;td&gt;1000&lt;/td&gt;
-&lt;/tr&gt;
-&lt;/tbody&gt;&lt;/table&gt;
-
-&lt;p&gt;这里有两个线程：A和B。A需要给id=1的用户增加300元，而B需要给id=1的记录减掉100元。 可能的方法如下：&lt;/p&gt;
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-text&quot; data-lang=&quot;text&quot;&gt;void updateWithId(int id, int deltaAmount)
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;p&gt;如果A先执行，B后执行，最后的amount的值为1200。如果B先执行，A后执行，最后的结果也是1200.最担心的情况的是，A和B同时执行。A、B两个线程同时读取到当前的值（1000），每个线程会将这个数据保存在自身的栈里。然后，A、B会竞争去做update操作，数据库引擎会保证同一时刻只有一个线程在update。如果A先做了update操作，DB中的amount会变成1300。这时B再做update，由于B已经将amount的值保留在栈内了（值为之前取到的1000），update之后，amount会变为900. 这明显不符合逻辑，多并发引起了数据的不一致。&lt;/p&gt;
-
-&lt;h2&gt;如何解决&lt;/h2&gt;
-
-&lt;h3&gt;方式1（利用versionId）&lt;/h3&gt;
-
-&lt;p&gt;在设计表的时候，多预留一个字段为version_id。它是一个普通的int类型。&lt;/p&gt;
-
-&lt;table&gt;&lt;thead&gt;
-&lt;tr&gt;
-&lt;th&gt;id&lt;/th&gt;
-&lt;th&gt;amount&lt;/th&gt;
-&lt;th&gt;version_id&lt;/th&gt;
-&lt;/tr&gt;
-&lt;/thead&gt;&lt;tbody&gt;
-&lt;tr&gt;
-&lt;td&gt;1&lt;/td&gt;
-&lt;td&gt;1000&lt;/td&gt;
-&lt;td&gt;1&lt;/td&gt;
-&lt;/tr&gt;
-&lt;/tbody&gt;&lt;/table&gt;
-
-&lt;p&gt;在定义方法的时候，要增加一个versionId进去。&lt;/p&gt;
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-text&quot; data-lang=&quot;text&quot;&gt;void updateWithIdAndVersionId(int id, int versionId,int deltaAmount)
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;p&gt;这样，当A、B同时执行。A和B先查询记录，发现id=1，versionId=1，并将结果保存在自己的栈内。当执行update操作时，总会有一个先执行。假设A先执行，A在调用updateWithIdAndVersionId方法时，程序需要&lt;strong&gt;将versionId加1&lt;/strong&gt;，这样一来，DB中id=1的记录的version_id就是2了。当B再执行updateWithIdAndVersionId操作，它根据2个条件（id=1、versionId=1）去更新。因为此时DB中已不存在这条记录了，所以更新失败。通过这种方法就可以保证多并发对数据操作的一致性。&lt;/p&gt;
-</content>
- </entry>
- 
- <entry>
-   <title>jekyll bootstrap主题安装</title>
-   <link href="http://changer119.github.io/2015/07/08/jekyll-bootstrap-%E4%B8%BB%E9%A2%98%E5%AE%89%E8%A3%85"/>
-   <updated>2015-07-08T00:00:00+08:00</updated>
-   <id>http://changer119.github.io/2015/07/08/jekyll-bootstrap-主题安装</id>
-   <content type="html">&lt;p&gt;在安装bootsrap dinky主题后，本地运行jekyll是没问题的，但一上传到github.com后，就会报下面的错误。&lt;/p&gt;
-
-&lt;blockquote&gt;
-&lt;p&gt;The page build failed with the following error:&lt;/p&gt;
-
-&lt;p&gt;The submodule &lt;code&gt;_theme_packages/dinky&lt;/code&gt; was not properly initialized with a &lt;code&gt;.gitmodules&lt;/code&gt; file. For more information, see &lt;a href=&quot;https://help.github.com/articles/page-build-failed-missing-submodule&quot;&gt;https://help.github.com/articles/page-build-failed-missing-submodule&lt;/a&gt;.&lt;/p&gt;
-
-&lt;p&gt;If you have any questions you can contact us by replying to this email.&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;笔者也很有耐心的去看了上文中的链接，结果怎么试都不行，后来在网上也找了很多其他的教程，依然解决不了。直到看到下面这两篇文章（&lt;a href=&quot;http://theloverz.me/note/2013/12/06/fix-failure-on-github-pages-and-jekyll/&quot;&gt;文章1&lt;/a&gt;，&lt;a href=&quot;http://dsimidzija.github.io/programming/2014/02/15/jekyll-bootstrap-themes-and-github-pages/&quot;&gt;文章2&lt;/a&gt;），才解决了问题。&lt;/p&gt;
-
-&lt;p&gt;下面我介绍下我的步骤。&lt;/p&gt;
-
-&lt;p&gt;1，进入博客的主目录(我的是changer119.github.io)，在.gitignore文件中添加如下内容。如果主目录下没有.gitignore文件，自己新增一个即可。&lt;/p&gt;
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-text&quot; data-lang=&quot;text&quot;&gt;*.swp
-_site/*
-_theme_packages/*
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;p&gt;以上内容表示，&lt;em&gt;site和 _theme&lt;/em&gt;package两个目录都不加到git，也不上传到github。&lt;/p&gt;
-
-&lt;p&gt;2，在主目录下删除已有的&lt;em&gt;theme&lt;/em&gt;packages内容。&lt;/p&gt;
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-text&quot; data-lang=&quot;text&quot;&gt;git rm -r --cached _theme_packages
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;p&gt;3, 重新安装jekyll bootstrap的主题。&lt;a href=&quot;http://jekyllbootstrap.com/usage/jekyll-theming.html#toc_3&quot;&gt;官方链接&lt;/a&gt;&lt;/p&gt;
-
-&lt;p&gt;我使用的dinky主题，我在主目录下输入如下命令，碰到需要选择的时候，一直yes下去&lt;/p&gt;
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-text&quot; data-lang=&quot;text&quot;&gt;rake theme:install git=&amp;quot;git://github.com/sodabrew/theme-dinky.git&amp;quot;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;p&gt;4，本地run一下jekyll，看看效果。在主目录下执行。&lt;/p&gt;
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-text&quot; data-lang=&quot;text&quot;&gt;jekyll server
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;p&gt;5，查看效果，访问&lt;a href=&quot;http://localhost:4000&quot;&gt;http://localhost:4000&lt;/a&gt;&lt;/p&gt;
-
-&lt;p&gt;6，如果效果正常，就可以提交修改到github啦。&lt;/p&gt;
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-text&quot; data-lang=&quot;text&quot;&gt;git add *
-git commit -m &amp;#39;your log&amp;#39;
-git push origin master
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;</content>
- </entry>
- 
- <entry>
-   <title>maven入门</title>
-   <link href="http://changer119.github.io/2015/07/08/Maven%E5%85%A5%E9%97%A8"/>
-   <updated>2015-07-08T00:00:00+08:00</updated>
-   <id>http://changer119.github.io/2015/07/08/Maven入门</id>
-   <content type="html">&lt;h2&gt;maven主要命令&lt;/h2&gt;
-
-&lt;h3&gt;安装但不运行test代码&lt;/h3&gt;
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-text&quot; data-lang=&quot;text&quot;&gt;$ mvn clean install -Dmaven.test.skip=true
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;h3&gt;指定profile安装&lt;/h3&gt;
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-text&quot; data-lang=&quot;text&quot;&gt;$ mvn clean install -Pint   # 给测试发的版本
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-text&quot; data-lang=&quot;text&quot;&gt;$ mvn clean install -Pdev   # 给开发发的版本
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;h3&gt;指定profile，不运行test（合并）&lt;/h3&gt;
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-text&quot; data-lang=&quot;text&quot;&gt;$ mvn clean install -Pint -Dmaven.test.skip=true
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;h2&gt;maven聚合&lt;/h2&gt;
-
-&lt;p&gt;假设有projectA，它里面聚合了projectB、projectC两个模块，projectA的pom.xml中的&lt;code&gt;&amp;lt;packaging&amp;gt;&lt;/code&gt;属性值必须为pom。&lt;/p&gt;
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-text&quot; data-lang=&quot;text&quot;&gt;&amp;lt;packaging&amp;gt;pom&amp;lt;/packaging&amp;gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;h1&gt;Maven参数配置&lt;/h1&gt;
-
-&lt;h2&gt;packaging 打包类型&lt;/h2&gt;
-
-&lt;p&gt;任何一个maven工程，对应有一个pom.xml文件。这个pom.xml文件通过&lt;code&gt;&amp;lt;packaging&amp;gt;xxx&amp;lt;/packaging&amp;gt;&lt;/code&gt;来决定该工程打包的类型（打成jar包？war包？）。&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;不填时（默认），表示打成jar包。&lt;/li&gt;
-&lt;li&gt;war，表示打成war包。&lt;/li&gt;
-&lt;li&gt;pom，表示这个工程不打包，它是其它工程的父工程。&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h1&gt;Nexus相关&lt;/h1&gt;
-
-&lt;p&gt;Nexus安装之后，会自动配置下面这几个仓库。如图：&lt;/p&gt;
-
-&lt;p&gt;&lt;strong&gt;图片&lt;/strong&gt;&lt;/p&gt;
-
-&lt;p&gt;这里面的仓库主要有三种类型： &lt;code&gt;hosted&lt;/code&gt;|&lt;code&gt;proxy&lt;/code&gt;|&lt;code&gt;group&lt;/code&gt;&lt;/p&gt;
-
-&lt;p&gt;&lt;strong&gt;hosted&lt;/strong&gt;: 主要与公司内部打交道。例如用户发布包（&lt;code&gt;mvn deploy&lt;/code&gt;）就会将包上传到&lt;code&gt;hosted&lt;/code&gt;类别的仓库中。&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;Releases仓库：当工程pom的version为x.x.x-Release时，用户发布后会将包上传到该仓库。&lt;/li&gt;
-&lt;li&gt;Snapshots仓库：与上逻辑同。&lt;/li&gt;
-&lt;li&gt;3rd part仓库：如果有些依赖包在maven的中央仓库找不到，就需要到该依赖包的官网下载，让后将依赖包上传到该仓库中。用户下次添加依赖时，会直接到该仓库获取。&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;&lt;strong&gt;proxy&lt;/strong&gt;: 主要与外网打交道。&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;Centeral仓库：从maven中央仓库下载的包都放在该仓库。&lt;/li&gt;
-&lt;li&gt;Apache Snapshots仓库：放从apache下载的包。&lt;/li&gt;
-&lt;li&gt;Codehause Snapshots仓库：放从codehause下载的包。&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;&lt;strong&gt;设置mirror后，工程只会访问镜像，如果程序访问不了镜像，也不会去访问中央工厂回到家后，无法访问mirror时，就需要注释mirror，程序才会去中央工厂下载&lt;/strong&gt;&lt;/p&gt;
-
-&lt;h2&gt;发布（mvn deploy）&lt;/h2&gt;
-
-&lt;p&gt;要将包发布到私服上，需要先在pom中设置&lt;code&gt;&amp;lt;distributionManagement&amp;gt;&lt;/code&gt;和&lt;code&gt;&amp;lt;server&amp;gt;&lt;/code&gt;&lt;/p&gt;
-
-&lt;p&gt;&lt;strong&gt;图片1&lt;/strong&gt;&lt;/p&gt;
-
-&lt;p&gt;&lt;strong&gt;pic2&lt;/strong&gt;&lt;/p&gt;
-
-&lt;h2&gt;Maven的生命周期&lt;/h2&gt;
-
-&lt;p&gt;&lt;strong&gt;有3套生命周期：clean的生命周期、compile的生命周期、site的生命周期&lt;/strong&gt;&lt;/p&gt;
-
-&lt;p&gt;下图列出了执行mvn clean和mvn install需要完成的步骤。&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;../_images/QQ20150711-2@2x.png&quot; alt=&quot;图片说明&quot;&gt;&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;../_images/QQ20150711-3@2x.png&quot; alt=&quot;图片说明&quot;&gt;&lt;/p&gt;
-
-&lt;h2&gt;插件的配置&lt;/h2&gt;
-
-&lt;p&gt;表示在执行完validate之后，就会执行jar和test-jar操作。&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;../_images/QQ20150711-4@2x.png&quot; alt=&quot;图片说明&quot;&gt;&lt;/p&gt;
-
-&lt;p&gt;&lt;strong&gt;在父级pom中，有&lt;code&gt;&amp;lt;pluginsManagement&amp;gt;&lt;/code&gt;|&lt;code&gt;&amp;lt;dependencyManagement&amp;gt;&lt;/code&gt;标签，在它里面定义的内容不能够被子模块直接继承，需要在子模块中手动添加groupid和archtypeId才行&lt;/strong&gt;&lt;/p&gt;
-</content>
- </entry>
- 
- <entry>
-   <title>测试图片显示</title>
-   <link href="http://changer119.github.io/2015/07/07/%E6%B5%8B%E8%AF%95%E4%BD%BF%E7%94%A8%E5%9B%BE%E7%89%87"/>
-   <updated>2015-07-07T00:00:00+08:00</updated>
-   <id>http://changer119.github.io/2015/07/07/测试使用图片</id>
-   <content type="html">&lt;p&gt;情况1：图片放在changer119.github.io本地目录下。&lt;/p&gt;
-
-&lt;p&gt;需要找到./assets/images/目录，将图片放到该目录下。在调用图片的地方使用如下语法：&lt;/p&gt;
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-text&quot; data-lang=&quot;text&quot;&gt;![图片说明](http://changer119.github.io/assets/images/1.jpg)
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;p&gt;&lt;img src=&quot;http://changer119.github.io/assets/images/1.jpg&quot; alt=&quot;图片说明&quot;&gt;&lt;/p&gt;
-
-&lt;p&gt;情况2：图片放在qiniu上。&lt;/p&gt;
-
-&lt;p&gt;&lt;strong&gt;如何配置qiniu 可参照&lt;/strong&gt; &lt;a href=&quot;http://developer.qiniu.com/docs/v6/tools/qrsync.html#download&quot;&gt;七牛官方配置&lt;/a&gt;&lt;/p&gt;
-
-&lt;p&gt;先将图片放在&lt;em&gt;/Users/fcjiang/qiniu-sync/QQSnapShot/&lt;/em&gt;目录下。&lt;/p&gt;
-
-&lt;p&gt;然后启用qiniu的同步工具：&lt;/p&gt;
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-text&quot; data-lang=&quot;text&quot;&gt;qrsync //Users/fcjiang/Software/qiniu-devtools-darwin_amd64-v3.1.20150620/conf.json
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;p&gt;图片会自动上传到qiniu服务器的changer119目录中。&lt;/p&gt;
-
-&lt;p&gt;要使用时，只需要&lt;/p&gt;
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-text&quot; data-lang=&quot;text&quot;&gt;![图片说明](http://changer119.qiniudn.com/QQ20150720-2.png)
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;p&gt;&lt;img src=&quot;http://changer119.qiniudn.com/QQ20150720-2.png&quot; alt=&quot;图片说明&quot;&gt;&lt;/p&gt;
-</content>
- </entry>
- 
- <entry>
-   <title>java枚举类型初体验</title>
-   <link href="http://changer119.github.io/2015/07/07/Java%E6%9E%9A%E4%B8%BE%E7%B1%BB%E5%9E%8B%E4%BD%BF%E7%94%A8"/>
-   <updated>2015-07-07T00:00:00+08:00</updated>
-   <id>http://changer119.github.io/2015/07/07/Java枚举类型使用</id>
-   <content type="html">&lt;p&gt;Enum是JDK5引入的。有了Enum类型后，对于常量的处理更加方便。&lt;/p&gt;
-
-&lt;p&gt;以前定义常量一般是这样的：&lt;/p&gt;
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-text&quot; data-lang=&quot;text&quot;&gt;Constant.java
-
-public interface Constant{
-    public final PI = 3.14;
-    public fianl G = 9.8;
-}
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;p&gt;以前这些常量可能分散在不同的文件中，缺乏统一的管理，使用不方便。&lt;/p&gt;
-
-&lt;p&gt;利用Enum类型，可以将常量定义成如下形式：&lt;/p&gt;
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-text&quot; data-lang=&quot;text&quot;&gt;ColorEnum.java
-
-public enum ColorEnum{
-    RED, GREEN, YELLOW;
-}
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;p&gt;如果觉得上面的枚举太过简单，可以给ColorEnum添加方法。&lt;/p&gt;
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-text&quot; data-lang=&quot;text&quot;&gt;public enum Color {
-    // 必须先定义枚举类Color的实例
-    Red(1, &amp;quot;红色&amp;quot;),
-    Green(2, &amp;quot;绿色&amp;quot;),
-    Yellow(3, &amp;quot;黄色&amp;quot;),
-    Pink(4, &amp;quot;粉红色&amp;quot;);
-
-    private final int id;
-    private final String description;
-
-
-    // 根据id值得到对应的description
-    public static String getDescription(int id){
-        for(Color item : Color.values()){
-            if(item.getId() == id){
-                return item.getDescription();
-            }
-        }
-        return null;
-    }
-    // 根据id值得到对应的枚举实例
-    public static Color getColor(int id){
-        for(Color item : Color.values()){
-            if(item.getId() == id){
-                return item;
-            }
-        }
-        return null;
-    }
-    // 根据id值得到对应的枚举实例
-    public static Color valueOf(int id){
-        switch (id){
-            case 1:
-                return Color.Red;
-            case 2:
-                return Color.Green;
-            case 3:
-                return Color.Yellow;
-            case 4:
-                return Color.Pink;
-            default:
-                return  null;
-        }
-    }
-
-    //覆盖方法
-    @Override
-    public String toString() {
-        return this.id+&amp;quot;_&amp;quot; + this.description;
-    }
-
-    Color(int id, String description) {
-        this.id = id;
-        this.description = description;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    // 枚举类里面可以添加main方法
-    public static void main(String[] args){
-        int id = 2;
-        Color c = Color.getColor(2);
-        System.out.println(c);
-    }
-}
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;p&gt;&lt;strong&gt;重点&lt;/strong&gt;&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;定义枚举类时，枚举实例必须放在最前面，并且已&lt;code&gt;;&lt;/code&gt;分号隔开。&lt;/li&gt;
-&lt;li&gt;枚举实例&lt;code&gt;Red(1, &amp;quot;红色&amp;quot;)&lt;/code&gt;，是根据枚举类的定义得来的。（枚举类有id, description两个成员变量）&lt;/li&gt;
-&lt;li&gt;这种枚举类主要用在数据库的状态字段中。&lt;/li&gt;
-&lt;/ul&gt;
-</content>
- </entry>
- 
- <entry>
-   <title>Intellij使用</title>
-   <link href="http://changer119.github.io/2015/07/07/Intellij%E4%BD%BF%E7%94%A8"/>
-   <updated>2015-07-07T00:00:00+08:00</updated>
-   <id>http://changer119.github.io/2015/07/07/Intellij使用</id>
-   <content type="html">&lt;h2&gt;导出svn上的maven工程&lt;/h2&gt;
-
-&lt;p&gt;1, 新建Maven工程。&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;http://changer119.github.io/assets/images/QQ20150720-1.png&quot; alt=&quot;从svn新建项目&quot;&gt;&lt;/p&gt;
-
-&lt;p&gt;2，在IdeaWorspace目录下，新建一个文件夹，名字和checkout的分支名一样。然后将新工程指定放在该目录下，开始checkout代码。&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;http://changer119.github.io/assets/images/QQ20150720-2.png&quot; alt=&quot;新建文件夹&quot;&gt;&lt;/p&gt;
-
-&lt;p&gt;3，代码checkout到本地后，查看代码发现都有红色的问号（表示有错误）。这是因为Intellij没有自动刷新导致的。只要点击Intellij右侧MavenProjects，再点击刷新图标即可。&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;http://changer119.github.io/assets/images/QQ20150707-1@2x.png&quot; alt=&quot;图片说明&quot;&gt;&lt;/p&gt;
-
-&lt;h2&gt;Intellij常用快捷键&lt;/h2&gt;
-
-&lt;table&gt;&lt;thead&gt;
-&lt;tr&gt;
-&lt;th&gt;组合键&lt;/th&gt;
-&lt;th&gt;实现的功能&lt;/th&gt;
-&lt;/tr&gt;
-&lt;/thead&gt;&lt;tbody&gt;
-&lt;tr&gt;
-&lt;td&gt;&lt;code&gt;cmd + R&lt;/code&gt;&lt;/td&gt;
-&lt;td&gt;替换&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;&lt;code&gt;cmd + F&lt;/code&gt;&lt;/td&gt;
-&lt;td&gt;查找&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;&lt;code&gt;alt + F7&lt;/code&gt;&lt;/td&gt;
-&lt;td&gt;查找方法或者类被引用的地方&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;&lt;code&gt;double shift&lt;/code&gt;&lt;/td&gt;
-&lt;td&gt;查找类&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;&lt;code&gt;cmd + shift + F&lt;/code&gt;&lt;/td&gt;
-&lt;td&gt;全工程搜索某字符串内容&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;&lt;code&gt;cmd + N&lt;/code&gt;&lt;/td&gt;
-&lt;td&gt;生成构造方法或者getter/setter&lt;/td&gt;
-&lt;/tr&gt;
-&lt;/tbody&gt;&lt;/table&gt;
-</content>
- </entry>
- 
- <entry>
-   <title>公司巨变</title>
-   <link href="http://changer119.github.io/2015/07/02/%E5%85%AC%E5%8F%B8%E7%9A%84%E5%B7%A8%E5%8F%98"/>
-   <updated>2015-07-02T00:00:00+08:00</updated>
-   <id>http://changer119.github.io/2015/07/02/公司的巨变</id>
-   <content type="html">&lt;p&gt;2015年6月末到7月初，公司发生了一场巨变，很多的人员主动离职。&lt;/p&gt;
-
-&lt;p&gt;事情的起因是6月最后一个周五，突然收到李总（总裁）的邮件，说因为产品战略与公司产生分歧，提出离职。事情一出，大家就在议论，到底是什么分歧。李总说的与公司战略不一致，其实就是说的他跟CEO的意见不一致。过了大约一个小时，人力资源的负责人立马发邮件通知大家，说公司的某一项产品（由李总负责）将下线。邮件同时否认了一些谣言，并且提到了李总和另外一位核心员工的离职。&lt;/p&gt;
-
-&lt;p&gt;本以为事情到此为止，谁知道接下来的周一，公司很多人集体离职。我猜想他们肯定都是被李总拉出去单干了。这里面有很多老员工，也有一些新进来才2-3各月的员工。他们都是按照一个团队去的，既有PM、后台、前端，还有不同业务线的人员。这些人在公司的工作交接也很神速，估计每个人只用了1-2个小时就完成交接了。等我周四从家里回到单位时，要离职的人都离开了。&lt;/p&gt;
-
-&lt;p&gt;因为这些骨干人员的离职，CEO发邮件鼓励大家，并提及了ESOP计划，并且现在正准备开启。希望这可以团结大家吧。&lt;/p&gt;
 </content>
  </entry>
  
